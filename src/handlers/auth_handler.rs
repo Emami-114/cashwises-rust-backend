@@ -1,15 +1,17 @@
-use actix_web::{cookie::time::Duration as ActixWebDuration, cookie::Cookie, web, HttpResponse, Responder, Scope};
+use actix_web::{
+    cookie::time::Duration as ActixWebDuration, cookie::Cookie, web, HttpResponse, Responder, Scope,
+};
 use serde_json::json;
 use validator::Validate;
 
 use crate::{
     db::db_user_ext::UserExt,
+    errors::{auth_errors::ErrorMessage, http_error::HttpError},
+    extractors::auth::RequireAuth,
     schema::auth_schema::{
         FilterUserDto, LoginUserDto, RegisterUserDto, UserData, UserLoginResponseDto,
         UserResponseDto,
     },
-    errors::{auth_errors::ErrorMessage, http_error::HttpError},
-    extractors::auth::RequireAuth,
     utils::{password, token},
     AppState,
 };
@@ -80,7 +82,7 @@ pub async fn login(
             &app_state.env.jwt_secret.as_bytes(),
             app_state.env.jwt_maxage,
         )
-            .map_err(|e| HttpError::server_error(e.to_string()))?;
+        .map_err(|e| HttpError::server_error(e.to_string()))?;
         let cookie = Cookie::build("token", token.to_owned())
             .path("/")
             .max_age(ActixWebDuration::new(60 * &app_state.env.jwt_maxage, 0))

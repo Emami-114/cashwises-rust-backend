@@ -1,14 +1,11 @@
+use crate::schema::category_shema::UpdateCategorySchema;
 use crate::{
-    models::category_model::CategoryModel,
-    schema::category_shema::CreateCategorySchema,
-    schema::response_schema::FilterOptions,
-    AppState,
+    models::category_model::CategoryModel, schema::category_shema::CreateCategorySchema,
+    schema::response_schema::FilterOptions, AppState,
 };
-use actix_web::{delete, get, patch, post, web, HttpResponse, Responder, Scope, App};
+use actix_web::{web, HttpResponse, Responder, Scope};
 use chrono::Utc;
 use serde_json::json;
-use crate::schema::deal_schema::UpdateDealSchema;
-
 
 pub fn category_scope() -> Scope {
     web::scope("")
@@ -19,18 +16,19 @@ pub fn category_scope() -> Scope {
         .route("/category/{id}", web::delete().to(delete_category_handler))
 }
 
-
 async fn create_category_handler(
     body: web::Json<CreateCategorySchema>,
     data: web::Data<AppState>,
 ) -> impl Responder {
     let query_result = sqlx::query_as!(
         CategoryModel,
-        "INSERT INTO categories (title,thumbnail,user_id,published) VALUES ($1,$2,$3,$4) RETURNING *",
+        "INSERT INTO categories (title,thumbnail,user_id,published,status,sub_categories) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *",
         body.title,
         body.thumbnail,
         body.user_id,
         body.published,
+        body.status,
+        body.sub_categories.as_deref()
     )
         .fetch_one(&data.db_client.pool)
         .await;
@@ -66,7 +64,9 @@ async fn category_list_handler(
 
     let query_count = sqlx::query_scalar!("SELECT COUNT(*) FROM categories")
         .fetch_one(&data.db_client.pool)
-        .await.unwrap().unwrap_or(0);
+        .await
+        .unwrap()
+        .unwrap_or(0);
     let pages_count = query_count / limit as i64;
     let query_result = sqlx::query_as!(
         CategoryModel,
@@ -109,13 +109,9 @@ async fn get_category_handler(
 
     match query_result {
         Ok(category) => {
-            let category_response = json!({
-                "status":"success",
-                "category": category
-            });
             return HttpResponse::Ok().json(category);
         }
-        Err(err) => {
+        Err(_) => {
             let message = format!("category with ID: {} not found", category_id);
             return HttpResponse::NotFound().json(json!({
                 "status":"fail",
@@ -127,7 +123,7 @@ async fn get_category_handler(
 
 async fn patch_category_handler(
     path: web::Path<uuid::Uuid>,
-    body: web::Json<CreateCategorySchema>,
+    body: web::Json<UpdateCategorySchema>,
     data: web::Data<AppState>,
 ) -> impl Responder {
     let category_id = path.into_inner();
@@ -135,7 +131,9 @@ async fn patch_category_handler(
         CategoryModel,
         "SELECT * FROM categories WHERE id = $1",
         category_id
-    ).fetch_one(&data.db_client.pool).await;
+    )
+        .fetch_one(&data.db_client.pool)
+        .await;
 
     if query_result.is_err() {
         let message = format!("Category with ID: {} not found", category_id);
@@ -148,11 +146,13 @@ async fn patch_category_handler(
     let now_date_time = Utc::now();
     let query_result = sqlx::query_as!(
         CategoryModel,
-        "UPDATE categories SET title = COALESCE($1, title), thumbnail = COALESCE($2, thumbnail),user_id = COALESCE($3, user_id), published = COALESCE($4, published), updated_at = $5 WHERE id = $6 RETURNING *",
+        "UPDATE categories SET title = COALESCE($1, title), thumbnail = COALESCE($2, thumbnail),user_id = COALESCE($3, user_id), published = COALESCE($4, published),status = COALESCE($5, status), sub_categories = COALESCE($6, sub_categories),updated_at = $7 WHERE id = $8 RETURNING *",
         body.title,
         body.thumbnail,
         body.user_id,
         body.published,
+        body.status,
+        body.sub_categories.as_deref(),
         now_date_time,
         category_id
     ).fetch_one(&data.db_client.pool).await;
@@ -178,7 +178,8 @@ async fn delete_category_handler(
         CategoryModel,
         "DELETE FROM categories WHERE id = $1",
         category_id
-    ).execute(&data.db_client.pool)
+    )
+        .execute(&data.db_client.pool)
         .await
         .unwrap()
         .rows_affected();

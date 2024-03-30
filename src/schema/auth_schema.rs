@@ -9,17 +9,15 @@ pub struct RegisterUserDto {
     #[validate(length(min = 1, message = "Name is required"))]
     pub name: String,
     #[validate(
-    length(min = 1, message = "Email is required"),
-    email(message = "Email is invalid")
+        length(min = 1, message = "Email is required"),
+        email(message = "Email is invalid")
     )]
     pub email: String,
-    #[validate(
-    length(min = 1, message = "Password is required"),
-    )]
+    #[validate(length(min = 1, message = "Password is required"))]
     pub password: String,
     #[validate(
-    length(min = 1, message = "Please confirm your password"),
-    must_match(other = "password", message = "Passwords do not match")
+        length(min = 1, message = "Please confirm your password"),
+        must_match(other = "password", message = "Passwords do not match")
     )]
     #[serde(rename = "passwordConfirm")]
     pub password_confirm: String,
@@ -28,13 +26,11 @@ pub struct RegisterUserDto {
 #[derive(Validate, Debug, Default, Clone, Serialize, Deserialize)]
 pub struct LoginUserDto {
     #[validate(
-    length(min = 1, message = "Email is required"),
-    email(message = "Email is invalid")
+        length(min = 1, message = "Email is required"),
+        email(message = "Email is invalid")
     )]
     pub email: String,
-    #[validate(
-    length(min = 1, message = "Password is required"),
-    )]
+    #[validate(length(min = 1, message = "Password is required"))]
     pub password: String,
 }
 
@@ -54,9 +50,9 @@ pub struct FilterUserDto {
     pub role: String,
     pub photo: String,
     pub verified: bool,
-    #[serde(rename = "createdAt")]
+    // #[serde(rename = "createdAt")]
     pub created_at: DateTime<Utc>,
-    #[serde(rename = "updatedAt")]
+    // #[serde(rename = "updatedAt")]
     pub updated_at: DateTime<Utc>,
 }
 

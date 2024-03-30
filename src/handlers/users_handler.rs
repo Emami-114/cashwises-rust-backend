@@ -3,11 +3,13 @@ use validator::Validate;
 
 use crate::{
     db::db_user_ext::UserExt,
-    schema::auth_schema::{FilterUserDto, RequestQueryDto, UserData, UserListResponseDto, UserResponseDto},
     errors::http_error::HttpError,
     extractors::auth::{RequireAuth, RequireOnlyAdmin},
-    AppState,
     models::user_model::UserModel,
+    schema::auth_schema::{
+        FilterUserDto, RequestQueryDto, UserData, UserListResponseDto, UserResponseDto,
+    },
+    AppState,
 };
 
 pub fn users_scope() -> Scope {

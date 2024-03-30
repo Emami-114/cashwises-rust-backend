@@ -1,4 +1,3 @@
-
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
@@ -16,4 +15,10 @@ pub struct FilterOptions {
 #[derive(Deserialize, Debug)]
 pub struct ParamOptions {
     pub id: String,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct ImageOptions {
+    #[serde(rename = "dir")]
+    pub dir: String,
 }

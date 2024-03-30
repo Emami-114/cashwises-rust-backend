@@ -1,4 +1,3 @@
-
 use crate::{
     models::deal_model::DealModel,
     schema::deal_schema::{CreateDealSchema, FilterOptions, UpdateDealSchema},
@@ -65,7 +64,9 @@ async fn deal_list_handler(
 
     let query_count = sqlx::query_scalar!("SELECT COUNT(*) FROM deals")
         .fetch_one(&data.db_client.pool)
-        .await.unwrap().unwrap_or(0);
+        .await
+        .unwrap()
+        .unwrap_or(0);
     let pages_count = query_count / limit as i64;
     let query_result = sqlx::query_as!(
         DealModel,
@@ -73,8 +74,8 @@ async fn deal_list_handler(
         limit as i32,
         offset as i32
     )
-        .fetch_all(&data.db_client.pool)
-        .await;
+    .fetch_all(&data.db_client.pool)
+    .await;
 
     if query_result.is_err() {
         let message = "Something bad happened while fetching all deal items";

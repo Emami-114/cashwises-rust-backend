@@ -14,11 +14,11 @@ use crate::{utils, AppState};
 pub struct RequireAuth;
 
 impl<S> Transform<S, ServiceRequest> for RequireAuth
-    where
-        S: Service<
+where
+    S: Service<
             ServiceRequest,
-            Response=ServiceResponse<actix_web::body::BoxBody>,
-            Error=actix_web::Error,
+            Response = ServiceResponse<actix_web::body::BoxBody>,
+            Error = actix_web::Error,
         > + 'static,
 {
     type Response = ServiceResponse<actix_web::body::BoxBody>;
@@ -38,11 +38,11 @@ impl<S> Transform<S, ServiceRequest> for RequireAuth
 pub struct RequireOnlyAdmin;
 
 impl<S> Transform<S, ServiceRequest> for RequireOnlyAdmin
-    where
-        S: Service<
+where
+    S: Service<
             ServiceRequest,
-            Response=ServiceResponse<actix_web::body::BoxBody>,
-            Error=actix_web::Error,
+            Response = ServiceResponse<actix_web::body::BoxBody>,
+            Error = actix_web::Error,
         > + 'static,
 {
     type Response = ServiceResponse<actix_web::body::BoxBody>;
@@ -65,11 +65,11 @@ pub struct AuthMiddleware<S> {
 }
 
 impl<S> Service<ServiceRequest> for AuthMiddleware<S>
-    where
-        S: Service<
+where
+    S: Service<
             ServiceRequest,
-            Response=ServiceResponse<actix_web::body::BoxBody>,
-            Error=actix_web::Error,
+            Response = ServiceResponse<actix_web::body::BoxBody>,
+            Error = actix_web::Error,
         > + 'static,
 {
     type Response = ServiceResponse<actix_web::body::BoxBody>;
@@ -141,6 +141,6 @@ impl<S> Service<ServiceRequest> for AuthMiddleware<S>
                 Err(ErrorForbidden(json_error))
             }
         }
-            .boxed_local()
+        .boxed_local()
     }
 }

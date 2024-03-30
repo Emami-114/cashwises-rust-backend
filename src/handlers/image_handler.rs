@@ -1,22 +1,23 @@
+use crate::schema::response_schema::ImageOptions;
 use actix_multipart::Multipart;
-use actix_web::{Error, get, HttpRequest, HttpResponse, post, Responder, web};
+use actix_web::dev::ResourcePath;
 use actix_web::http::header::CONTENT_LENGTH;
+use actix_web::{get, post, web, Error, HttpRequest, HttpResponse, Responder};
 use futures_util::TryStreamExt;
-use image::DynamicImage;
 use image::imageops::FilterType;
-use mime::{IMAGE_GIF, IMAGE_JPEG, IMAGE_PNG, Mime};
+use image::DynamicImage;
+use mime::{Mime, IMAGE_GIF, IMAGE_JPEG, IMAGE_PNG};
+use std::path::Path;
 use tokio::fs;
 use tokio::io::AsyncWriteExt;
 
-#[get("/image/{id}")]
-async fn get_image(path: web::Path<String>) -> impl Responder {
-    let file_path = format!("{}/{}", "./uploads", path.into_inner());
+#[get("/images/{image_path:.*}")]
+async fn get_image(image_path: web::Path<String>) -> impl Responder {
+    let file_path = format!("{}{}", "./uploads/", image_path.into_inner());
     match std::fs::read(file_path) {
-        Ok(image_content) => {
-            Ok(HttpResponse::Ok()
-                .content_type("image/png")
-                .body(image_content))
-        }
+        Ok(image_content) => Ok(HttpResponse::Ok()
+            .content_type("image/png")
+            .body(image_content)),
         Err(e) => {
             println!("get_image");
             Err(actix_web::Error::from(e))
@@ -24,20 +25,30 @@ async fn get_image(path: web::Path<String>) -> impl Responder {
     }
 }
 
-#[post("/image/")]
-pub async fn upload_image_handler(req: HttpRequest, mut payload: Multipart) -> Result<HttpResponse, Error> {
+#[post("/images")]
+pub async fn upload_image_handler(
+    directory: web::Query<ImageOptions>,
+    req: HttpRequest,
+    mut payload: Multipart,
+) -> Result<HttpResponse, Error> {
     let content_length: usize = match req.headers().get(CONTENT_LENGTH) {
         Some(header_value) => header_value.to_str().unwrap_or("0").parse().unwrap(),
         None => "0".parse().unwrap(),
     };
-
     let max_file_count: usize = 3;
     let max_file_size: usize = 5_000_000;
     let legal_filetypes: [Mime; 3] = [IMAGE_PNG, IMAGE_JPEG, IMAGE_GIF];
     let mut current_count: usize = 0;
     let dir: &str = "./uploads/";
+    let order_dir = format!("{}{}/", dir, directory.dir);
+    if !Path::new(order_dir.path()).exists() {
+        fs::create_dir(order_dir.path()).await?;
+    }
+    let mut images_path: Vec<String> = Vec::new();
     if content_length > max_file_size {
-        return Ok(HttpResponse::BadRequest().content_type("text/plain").body("Error upload image"));
+        return Ok(HttpResponse::BadRequest()
+            .content_type("text/plain")
+            .body("Error upload image"));
     }
 
     loop {
@@ -52,12 +63,17 @@ pub async fn upload_image_handler(req: HttpRequest, mut payload: Multipart) -> R
             if !legal_filetypes.contains(&filetype.unwrap()) {
                 continue;
             }
-
-            let destination: String = format!(
-                "{}{}",
-                dir,
+            let file_path = format!(
+                "{}/{}",
+                directory.dir,
                 field.content_disposition().get_filename().unwrap()
             );
+            let destination: String = format!(
+                "{}{}",
+                order_dir,
+                field.content_disposition().get_filename().unwrap()
+            );
+            images_path.insert(0, file_path.clone());
             let mut saved_file: fs::File = fs::File::create(&destination).await.unwrap();
             while let Ok(Some(chunk)) = field.try_next().await {
                 let _ = saved_file.write_all(&chunk).await.unwrap();
@@ -73,13 +89,13 @@ pub async fn upload_image_handler(req: HttpRequest, mut payload: Multipart) -> R
                     .save(&destination)
                     .unwrap();
             })
-                .await
-                .unwrap()
-                .await;
+            .await
+            .unwrap()
+            .await;
         } else {
             break;
         }
         current_count += 1;
     }
-    Ok(HttpResponse::Ok().body("Ok"))
+    Ok(HttpResponse::Ok().json(images_path))
 }

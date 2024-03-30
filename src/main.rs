@@ -1,19 +1,18 @@
+use crate::handlers::config::{DBClient, DBConfig};
 use actix_cors::Cors;
-use actix_web::{http::header, web, App, HttpServer, middleware::Logger};
+use actix_web::{http::header, middleware::Logger, web, App, HttpServer};
 use dotenv::dotenv;
 use sqlx::postgres::PgPoolOptions;
-use tokio::fs;
 use std::path::Path;
-use crate::handlers::config::{DBClient, DBConfig};
+use tokio::fs;
 
-
-mod schema;
+mod db;
+mod errors;
+mod extractors;
 mod handlers;
 mod models;
-mod errors;
+mod schema;
 mod utils;
-mod extractors;
-mod db;
 
 #[derive(Debug, Clone)]
 pub struct AppState {
@@ -59,7 +58,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         env: db_config.clone(),
         db_client,
     };
-    println!("🚀 Server running on http://192.168.178.22:{}", db_config.port);
+    println!(
+        "🚀 Server running on http://192.168.178.22:{}",
+        db_config.port
+    );
 
     HttpServer::new(move || {
         let cors = Cors::default()
@@ -78,8 +80,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .wrap(cors)
             .wrap(Logger::default())
     })
-        .bind(("0.0.0.0", db_config.port))?
-        .run()
-        .await?;
+    .bind(("0.0.0.0", db_config.port))?
+    .run()
+    .await?;
     Ok(())
 }

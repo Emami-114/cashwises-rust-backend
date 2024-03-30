@@ -1,9 +1,8 @@
+use crate::errors::auth_errors::ErrorMessage;
 use argon2::{
     password_hash::{rand_core::OsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
     Argon2,
 };
-use crate::errors::auth_errors::ErrorMessage;
-
 
 const MAX_PASSWORD_LENGTH: usize = 64;
 

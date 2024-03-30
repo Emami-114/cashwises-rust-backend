@@ -6,7 +6,7 @@ use crate::handlers::image_handler::{get_image, upload_image_handler};
 use actix_web::web;
 use sqlx::{Pool, Postgres};
 
-use crate::handlers::category_handler::{category_scope};
+use crate::handlers::category_handler::category_scope;
 use crate::handlers::{auth_handler::auth_scope, users_handler::users_scope};
 
 pub fn config(conf: &mut web::ServiceConfig) {

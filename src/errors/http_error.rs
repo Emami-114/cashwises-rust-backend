@@ -1,7 +1,7 @@
-use std::fmt;
-use actix_web::{HttpResponse, ResponseError};
 use crate::errors::auth_errors::ErrorMessage;
 use crate::schema::response_schema::Response;
+use actix_web::{HttpResponse, ResponseError};
+use std::fmt;
 
 #[derive(Debug, Clone)]
 pub struct HttpError {

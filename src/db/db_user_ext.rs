@@ -1,7 +1,7 @@
+use crate::handlers::config::DBClient;
 use crate::models::user_model::UserRole;
 use async_trait::async_trait;
 use uuid::Uuid;
-use crate::handlers::config::DBClient;
 
 use crate::models::user_model::UserModel;
 

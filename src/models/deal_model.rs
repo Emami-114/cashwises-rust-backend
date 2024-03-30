@@ -27,11 +27,11 @@ pub struct DealModel {
 
 impl Serialize for DealModel {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: serde::Serializer,
+    where
+        S: serde::Serializer,
     {
         let mut state = serializer.serialize_struct("DealModel", 14)?;
-         let _id = state.serialize_field("id", &self.id)?;
+        let _id = state.serialize_field("id", &self.id)?;
 
         let _title = state.serialize_field("title", &self.title)?;
 
