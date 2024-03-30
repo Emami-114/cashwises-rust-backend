@@ -3,8 +3,9 @@ use actix_cors::Cors;
 use actix_web::{http::header, middleware::Logger, web, App, HttpServer};
 use dotenv::dotenv;
 use sqlx::postgres::PgPoolOptions;
-use std::path::Path;
-use tokio::fs;
+use utoipa::Modify;
+use utoipa::openapi::OpenApi;
+use utoipa::openapi::security::{HttpAuthScheme, HttpBuilder, SecurityScheme};
 
 mod db;
 mod errors;
@@ -20,14 +21,28 @@ pub struct AppState {
     pub db_client: DBClient,
 }
 
+struct SecurityAddon;
+
+impl Modify for SecurityAddon {
+    fn modify(&self, openapi: &mut OpenApi) {
+        let components = openapi.components.as_mut().unwrap();
+        components.add_security_scheme(
+            "token",
+            SecurityScheme::Http(
+                HttpBuilder::new()
+                    .scheme(HttpAuthScheme::Bearer)
+                    .bearer_format("JWT")
+                    .build()
+            ),
+        )
+    }
+}
+
 #[actix_web::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    openssl_probe::init_ssl_cert_env_vars();
     if std::env::var_os("RUST_LOG").is_none() {
         std::env::set_var("RUST_LOG", "actix_web=info");
-    }
-
-    if !Path::new("./uploads").exists() {
-        fs::create_dir("./uploads").await?;
     }
 
     dotenv().ok();
@@ -59,14 +74,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         db_client,
     };
     println!(
-        "🚀 Server running on http://192.168.178.22:{}",
+        "🚀 Server running on http://localhost:{}",
         db_config.port
     );
 
     HttpServer::new(move || {
         let cors = Cors::default()
             .allowed_origin("http://localhost:3000")
-            .allowed_origin("http://localhost:9000")
+            .allowed_origin("http://localhost:8080")
             .allowed_methods(vec!["GET", "POST", "PATCH", "DELETE"])
             .allowed_headers(vec![
                 header::CONTENT_TYPE,
@@ -80,8 +95,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .wrap(cors)
             .wrap(Logger::default())
     })
-    .bind(("0.0.0.0", db_config.port))?
-    .run()
-    .await?;
+        .bind(("0.0.0.0", db_config.port))?
+        .run()
+        .await?;
     Ok(())
 }

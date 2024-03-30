@@ -16,6 +16,7 @@ COPY --from=planner /cashwises-rust/recipe.json recipe.json
 RUN apt-get update \
     && apt-get upgrade -y \
     && apt-get install -y gcc default-libmysqlclient-dev pkg-config \
+    && apt-get install -y ca-certificates tzdata \
     && rm -rf /var/lib/apt/lists/*
     
 # Build & cache dependencies
