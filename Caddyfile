@@ -1,5 +1,5 @@
 api.cwcash.de {
-    reverse_proxy api-rust:8080 {
+    reverse_proxy api-rust:8000 {
         header_down Strict-Transport-Security max-age=31536000;
     }
 }

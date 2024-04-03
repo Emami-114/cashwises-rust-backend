@@ -46,7 +46,7 @@ impl DBConfig {
             database_url,
             jwt_secret,
             jwt_maxage: jwt_maxage.parse::<i64>().unwrap(),
-            port: 8080,
+            port: 8000,
         }
     }
 }
