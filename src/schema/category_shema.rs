@@ -10,7 +10,7 @@ pub struct CreateCategorySchema {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub status: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub sub_categories: Option<Vec<String>>,
+    pub main_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub published: Option<bool>,
 }
@@ -26,7 +26,7 @@ pub struct UpdateCategorySchema {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub status: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub sub_categories: Option<Vec<String>>,
+    pub main_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub published: Option<bool>,
 }

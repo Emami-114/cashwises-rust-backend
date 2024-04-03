@@ -30,8 +30,8 @@
       },
       {
         "ordinal": 5,
-        "name": "sub_categories",
-        "type_info": "TextArray"
+        "name": "main_id",
+        "type_info": "Varchar"
       },
       {
         "ordinal": 6,

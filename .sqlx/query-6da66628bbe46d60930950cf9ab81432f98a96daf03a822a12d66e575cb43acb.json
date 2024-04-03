@@ -21,7 +21,7 @@
       {
         "ordinal": 3,
         "name": "category",
-        "type_info": "Varchar"
+        "type_info": "TextArray"
       },
       {
         "ordinal": 4,
@@ -93,7 +93,7 @@
       "Left": [
         "Varchar",
         "Text",
-        "Varchar",
+        "TextArray",
         "Bool",
         "Float8",
         "Float8",

@@ -10,7 +10,7 @@ pub struct CategoryModel {
     pub user_id: Option<String>,
     pub published: Option<bool>,
     pub status: Option<String>,
-    pub sub_categories: Option<Vec<String>>,
+    pub main_id: Option<String>,
     pub created_at: Option<chrono::DateTime<chrono::Utc>>,
     pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
 }

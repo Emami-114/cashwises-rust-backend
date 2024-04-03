@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT * FROM deals ORDER by id LIMIT $1 OFFSET $2",
+  "query": "SELECT * FROM deals WHERE CASE\n            WHEN $1 <> '' THEN title LIKE '%' || $1 || '%'\n            ELSE true\n            END ORDER BY updated_at LIMIT $2 OFFSET $3",
   "describe": {
     "columns": [
       {
@@ -21,7 +21,7 @@
       {
         "ordinal": 3,
         "name": "category",
-        "type_info": "Varchar"
+        "type_info": "TextArray"
       },
       {
         "ordinal": 4,
@@ -91,6 +91,7 @@
     ],
     "parameters": {
       "Left": [
+        "Text",
         "Int8",
         "Int8"
       ]
@@ -115,5 +116,5 @@
       true
     ]
   },
-  "hash": "73b3eb208ac501cbb67b633b75e8c84bd41311350c5538793daaeb45433c56d2"
+  "hash": "eb5c6459e8a66acbc050d29401472ce99c43c5d52b25a3b8158f20cba682976b"
 }

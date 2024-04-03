@@ -10,6 +10,7 @@ pub struct Response {
 pub struct FilterOptions {
     pub page: Option<usize>,
     pub limit: Option<usize>,
+    pub query: Option<String>,
 }
 
 #[derive(Deserialize, Debug)]

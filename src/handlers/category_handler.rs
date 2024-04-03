@@ -6,6 +6,7 @@ use crate::{
 use actix_web::{web, HttpResponse, Responder, Scope};
 use chrono::Utc;
 use serde_json::json;
+use crate::extractors::auth::RequireAuth;
 
 pub fn category_scope() -> Scope {
     web::scope("")
@@ -22,13 +23,13 @@ async fn create_category_handler(
 ) -> impl Responder {
     let query_result = sqlx::query_as!(
         CategoryModel,
-        "INSERT INTO categories (title,thumbnail,user_id,published,status,sub_categories) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *",
+        "INSERT INTO categories (title,thumbnail,user_id,published,status,main_id) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *",
         body.title,
         body.thumbnail,
         body.user_id,
         body.published,
         body.status,
-        body.sub_categories.as_deref()
+        body.main_id
     )
         .fetch_one(&data.db_client.pool)
         .await;
@@ -146,13 +147,13 @@ async fn patch_category_handler(
     let now_date_time = Utc::now();
     let query_result = sqlx::query_as!(
         CategoryModel,
-        "UPDATE categories SET title = COALESCE($1, title), thumbnail = COALESCE($2, thumbnail),user_id = COALESCE($3, user_id), published = COALESCE($4, published),status = COALESCE($5, status), sub_categories = COALESCE($6, sub_categories),updated_at = $7 WHERE id = $8 RETURNING *",
+        "UPDATE categories SET title = COALESCE($1, title), thumbnail = COALESCE($2, thumbnail),user_id = COALESCE($3, user_id), published = COALESCE($4, published),status = COALESCE($5, status), main_id = COALESCE($6, main_id),updated_at = $7 WHERE id = $8 RETURNING *",
         body.title,
         body.thumbnail,
         body.user_id,
         body.published,
         body.status,
-        body.sub_categories.as_deref(),
+        body.main_id,
         now_date_time,
         category_id
     ).fetch_one(&data.db_client.pool).await;

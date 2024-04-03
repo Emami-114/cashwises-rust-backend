@@ -1,8 +1,10 @@
+use std::path::Path;
 use crate::handlers::config::{DBClient, DBConfig};
 use actix_cors::Cors;
 use actix_web::{http::header, middleware::Logger, web, App, HttpServer};
 use dotenv::dotenv;
 use sqlx::postgres::PgPoolOptions;
+use tokio::fs;
 use utoipa::Modify;
 use utoipa::openapi::OpenApi;
 use utoipa::openapi::security::{HttpAuthScheme, HttpBuilder, SecurityScheme};
@@ -44,7 +46,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     if std::env::var_os("RUST_LOG").is_none() {
         std::env::set_var("RUST_LOG", "actix_web=info");
     }
-
+    if !Path::new("./uploads").exists() {
+        fs::create_dir("./uploads").await?;
+    }
     dotenv().ok();
     env_logger::init();
 

@@ -1,7 +1,4 @@
-use crate::handlers::deal_handler::{
-    create_deal_handler, deal_list_handler, delete_deal_handler, edit_deal_handler,
-    get_deal_handler, health_checker_handler,
-};
+use crate::handlers::deal_handler::deals_scope;
 use crate::handlers::image_handler::{get_image, upload_image_handler};
 use actix_web::web;
 use sqlx::{Pool, Postgres};
@@ -11,14 +8,9 @@ use crate::handlers::{auth_handler::auth_scope, users_handler::users_scope};
 
 pub fn config(conf: &mut web::ServiceConfig) {
     let scope = web::scope("/api")
-        .service(health_checker_handler)
-        .service(deal_list_handler)
-        .service(get_deal_handler)
-        .service(edit_deal_handler)
-        .service(delete_deal_handler)
         .service(upload_image_handler)
         .service(get_image)
-        .service(create_deal_handler)
+        .service(deals_scope())
         .service(auth_scope())
         .service(users_scope())
         .service(category_scope());

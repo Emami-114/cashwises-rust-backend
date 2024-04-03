@@ -35,7 +35,7 @@ pub async fn upload_image_handler(
         Some(header_value) => header_value.to_str().unwrap_or("0").parse().unwrap(),
         None => "0".parse().unwrap(),
     };
-    let max_file_count: usize = 3;
+    let max_file_count: usize = 5;
     let max_file_size: usize = 5_000_000;
     let legal_filetypes: [Mime; 3] = [IMAGE_PNG, IMAGE_JPEG, IMAGE_GIF];
     let mut current_count: usize = 0;
@@ -85,7 +85,7 @@ pub async fn upload_image_handler(
                 // let save_path = format!("{}{}.png", dir, Uuid::new_v4().to_string());
                 // let save_path = format!("{}{}",dir,field.content_disposition().get_filename().unwrap_or(Uuid::new_v4().to_string().as_str()));
                 uploaded_img
-                    .resize_exact(700, 510, FilterType::Triangle)
+                    .resize_exact(640, 320, FilterType::Triangle)
                     .save(&destination)
                     .unwrap();
             })

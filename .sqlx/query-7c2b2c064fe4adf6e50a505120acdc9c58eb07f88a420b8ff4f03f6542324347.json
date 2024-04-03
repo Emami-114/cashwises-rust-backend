@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "UPDATE categories SET title = COALESCE($1, title), thumbnail = COALESCE($2, thumbnail),user_id = COALESCE($3, user_id), published = COALESCE($4, published),status = COALESCE($5, status), sub_categories = COALESCE($6, sub_categories),updated_at = $7 WHERE id = $8 RETURNING *",
+  "query": "UPDATE categories SET title = COALESCE($1, title), thumbnail = COALESCE($2, thumbnail),user_id = COALESCE($3, user_id), published = COALESCE($4, published),status = COALESCE($5, status), main_id = COALESCE($6, main_id),updated_at = $7 WHERE id = $8 RETURNING *",
   "describe": {
     "columns": [
       {
@@ -30,8 +30,8 @@
       },
       {
         "ordinal": 5,
-        "name": "sub_categories",
-        "type_info": "TextArray"
+        "name": "main_id",
+        "type_info": "Varchar"
       },
       {
         "ordinal": 6,
@@ -56,7 +56,7 @@
         "Varchar",
         "Bool",
         "Varchar",
-        "TextArray",
+        "Varchar",
         "Timestamptz",
         "Uuid"
       ]
@@ -73,5 +73,5 @@
       true
     ]
   },
-  "hash": "5f0acb0983e8c804e925353716f908605bf0c615b7cb903ef978ba6d0897018c"
+  "hash": "7c2b2c064fe4adf6e50a505120acdc9c58eb07f88a420b8ff4f03f6542324347"
 }

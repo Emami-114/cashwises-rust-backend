@@ -1,13 +1,24 @@
 use crate::{
     models::deal_model::DealModel,
-    schema::deal_schema::{CreateDealSchema, FilterOptions, UpdateDealSchema},
+    schema::deal_schema::{CreateDealSchema, UpdateDealSchema},
     AppState,
 };
-use actix_web::{delete, get, patch, post, web, HttpResponse, Responder};
+use actix_web::{web, HttpResponse, Responder, Scope};
 use chrono::prelude::*;
 use serde_json::json;
+use crate::extractors::auth::RequireAuth;
+use crate::schema::response_schema::FilterOptions;
 
-#[post("/deals")]
+
+pub fn deals_scope() -> Scope {
+    web::scope("/deals")
+        .route("", web::post().to(create_deal_handler))
+        .route("", web::get().to(deal_list_handler))
+        .route("/{id}", web::get().to(get_deal_handler))
+        .route("/{id}", web::patch().to(edit_deal_handler))
+        .route("/{id}", web::delete().to(delete_deal_handler))
+}
+
 async fn create_deal_handler(
     body: web::Json<CreateDealSchema>,
     data: web::Data<AppState>,
@@ -17,7 +28,7 @@ async fn create_deal_handler(
         "INSERT INTO deals (title,description,category,is_free,price,offer_price,published,expiration_date,provider,provider_url,thumbnail,images,user_id,video_url) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING *",
         body.title,
         body.description,
-        body.category,
+        body.category.as_deref(),
         body.is_free,
         body.price,
         body.offer_price,
@@ -54,7 +65,6 @@ async fn create_deal_handler(
     }
 }
 
-#[get("/deals")]
 async fn deal_list_handler(
     opts: web::Query<FilterOptions>,
     data: web::Data<AppState>,
@@ -68,14 +78,26 @@ async fn deal_list_handler(
         .unwrap()
         .unwrap_or(0);
     let pages_count = query_count / limit as i64;
-    let query_result = sqlx::query_as!(
-        DealModel,
-        "SELECT * FROM deals ORDER by id LIMIT $1 OFFSET $2",
-        limit as i32,
-        offset as i32
-    )
-    .fetch_all(&data.db_client.pool)
-    .await;
+
+    let query_result = if let Some(query_text) = &opts.query {
+        sqlx::query_as!(
+            DealModel,
+            "SELECT * FROM deals WHERE CASE
+            WHEN $1 <> '' THEN title LIKE '%' || $1 || '%'
+            ELSE true
+            END ORDER BY updated_at LIMIT $2 OFFSET $3",
+            query_text,
+            limit as i32,
+            offset as i32
+        ).fetch_all(&data.db_client.pool).await
+    } else {
+        sqlx::query_as!(
+            DealModel,
+            "SELECT * FROM deals ORDER BY updated_at LIMIT $1 OFFSET $2",
+            limit as i32,
+            offset as i32
+        ).fetch_all(&data.db_client.pool).await
+    };
 
     if query_result.is_err() {
         let message = "Something bad happened while fetching all deal items";
@@ -95,7 +117,6 @@ async fn deal_list_handler(
     HttpResponse::Ok().json(json_response)
 }
 
-#[get("/deals/{id}")]
 async fn get_deal_handler(
     path: web::Path<uuid::Uuid>,
     data: web::Data<AppState>,
@@ -123,7 +144,6 @@ async fn get_deal_handler(
     }
 }
 
-#[patch("/deals/{id}")]
 async fn edit_deal_handler(
     path: web::Path<uuid::Uuid>,
     body: web::Json<UpdateDealSchema>,
@@ -147,7 +167,7 @@ async fn edit_deal_handler(
         "UPDATE deals SET title = COALESCE($1, title), description = COALESCE($2, description), category = COALESCE($3, category), is_free = COALESCE($4, is_free), price = COALESCE($5, price), offer_price = COALESCE($6, offer_price), published = COALESCE($7, published), expiration_date = COALESCE($8, expiration_date), provider = COALESCE($9, provider), provider_url = COALESCE($10, provider_url), thumbnail = COALESCE($11, thumbnail),images = COALESCE($12, images),user_id = COALESCE($13, user_id),video_url = COALESCE($14, video_url), updated_at = $15 WHERE id = $16 RETURNING *",
          body.title,
         body.description,
-        body.category,
+        body.category.as_deref(),
         body.is_free,
         body.price,
         body.offer_price,
@@ -181,7 +201,6 @@ async fn edit_deal_handler(
     }
 }
 
-#[delete("/deals/{id}")]
 async fn delete_deal_handler(
     path: web::Path<uuid::Uuid>,
     data: web::Data<AppState>,
@@ -199,7 +218,7 @@ async fn delete_deal_handler(
     HttpResponse::NoContent().finish()
 }
 
-#[get("/")]
+
 async fn health_checker_handler() -> impl Responder {
     const MESSAGE: &str = "BUILD SIMPLE CRUD API with RUST";
     HttpResponse::Ok().json(json!({

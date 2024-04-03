@@ -91,10 +91,7 @@ pub async fn login(
 
         Ok(HttpResponse::Ok()
             .cookie(cookie)
-            .json(UserLoginResponseDto {
-                status: "success".to_string(),
-                token,
-            }))
+            .json(token))
     } else {
         Err(HttpError::unauthorized(ErrorMessage::WrongCredentials))
     }
@@ -106,7 +103,6 @@ pub async fn logout() -> impl Responder {
         .max_age(ActixWebDuration::new(-1, 0))
         .http_only(true)
         .finish();
-
     HttpResponse::Ok()
         .cookie(cookie)
         .json(json!({"status": "success"}))

@@ -21,7 +21,7 @@
       {
         "ordinal": 3,
         "name": "category",
-        "type_info": "Varchar"
+        "type_info": "TextArray"
       },
       {
         "ordinal": 4,

@@ -9,7 +9,7 @@ pub struct DealModel {
     pub id: Uuid,
     pub title: String,
     pub description: String,
-    pub category: Option<String>,
+    pub category: Option<Vec<String>>,
     pub is_free: Option<bool>,
     pub price: Option<f64>,
     pub offer_price: Option<f64>,

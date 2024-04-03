@@ -1,10 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize, Debug)]
-pub struct FilterOptions {
-    pub page: Option<usize>,
-    pub limit: Option<usize>,
-}
 
 #[derive(Deserialize, Debug)]
 pub struct ParamOptions {
@@ -16,7 +11,7 @@ pub struct CreateDealSchema {
     pub title: String,
     pub description: String,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub category: Option<String>,
+    pub category: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub published: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -45,7 +40,7 @@ pub struct CreateDealSchema {
 pub struct UpdateDealSchema {
     pub title: Option<String>,
     pub description: Option<String>,
-    pub category: Option<String>,
+    pub category: Option<Vec<String>>,
     pub published: Option<bool>,
     pub is_free: Option<bool>,
     pub price: Option<f64>,
