@@ -11,7 +11,7 @@ services:
       JWT_MAXAGE: ${JWT_MAXAGE}
     build:
       context: .
-      dockerfile: ./Dockerfile
+      dockerfile: Dockerfile
     networks:
       - rust_app_network
 
