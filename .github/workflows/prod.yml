@@ -77,7 +77,6 @@ jobs:
           set: |
             *.cache-from=type=gha
             *.cache-to=type=gha,mode=max
-
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -94,7 +93,11 @@ jobs:
 
       - name: Install sshpass
         run: sudo apt-get install sshpass
-
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{secrets.SSH_PRIVATE_KEY}}
+          ssh-public-key: ${{secrets.SSH_PUBLIC_KEY}}
       - name: Copy Caddyfile to vps_server
         run: sshpass -v -p '${{ secrets.VPS_PASSWORD }}' scp -o StrictHostKeyChecking=no Caddyfile root@${{ secrets.VPS_IP }}:~
 
