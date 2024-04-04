@@ -85,12 +85,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Build Docker image
-        run: docker build -t api-rust -f /root/Dockerfile .
-        with:
-          host: ${{ secrets.VPS_IP }}
-          username: root
-          password: ${{ secrets.VPS_PASSWORD }}
+
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v1
@@ -116,6 +111,8 @@ jobs:
         with:
           host: ${{ secrets.VPS_IP }}
           username: root
+          ssh-private-key: ${{secrets.SSH_PRIVATE_KEY}}
+          ssh-public-key: ${{secrets.SSH_PUBLIC_KEY}}
           password: ${{ secrets.VPS_PASSWORD }}
           script: |
             cd ~
