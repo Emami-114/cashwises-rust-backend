@@ -8,18 +8,20 @@ WORKDIR /complete-restful-api-in-rust
 
 # Copy and build dependencies
 COPY Cargo.toml Cargo.lock ./
-RUN cargo build --release --locked
+RUN cargo build --release
 RUN rm src/*.rs
 
 # Copy the source code and build the application
 COPY . .
-RUN cargo build --release --locked
+RUN cargo build --release
 
 # Production Stage
 FROM debian:buster-slim
 ARG APP=/usr/src/app
 
 RUN apt-get update \
+    && apt-get upgrade -y \
+    && apt-get install -y gcc default-libmysqlclient-dev pkg-config \
     && apt-get install -y ca-certificates tzdata \
     && rm -rf /var/lib/apt/lists/*
 
