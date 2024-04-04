@@ -3,3 +3,4 @@ pgadmin4.cwcash.de {
         header_down Strict-Transport-Security max-age=31536000;
     }
 }
+
