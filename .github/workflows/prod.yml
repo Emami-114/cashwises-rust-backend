@@ -85,6 +85,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Build Docker image
+        run: docker build -t api-rust -f /root/Dockerfile .
+        with:
+          host: ${{ secrets.VPS_IP }}
+          username: root
+          password: ${{ secrets.VPS_PASSWORD }}
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v1
@@ -104,12 +110,7 @@ jobs:
         run: |
           sshpass -v -p '${{ secrets.VPS_PASSWORD }}' scp -o StrictHostKeyChecking=no docker-compose.yml root@${{ secrets.VPS_IP }}:~
           sshpass -v -p '${{ secrets.VPS_PASSWORD }}' scp -o StrictHostKeyChecking=no docker-compose.prod.yml root@${{ secrets.VPS_IP }}:~
-      - name: Build Docker image
-        run: docker build -t api-rust -f /root/Dockerfile .
-        with:
-          host: ${{ secrets.VPS_IP }}
-          username: root
-          password: ${{ secrets.VPS_PASSWORD }}
+
       - name: Deploy
         uses: appleboy/ssh-action@master
         with:
