@@ -60,11 +60,7 @@ jobs:
         run: |
           cargo build --verbose
           cargo test --verbose
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.5.3
-        with:
-          ssh-private-key: ${{secrets.SSH_PRIVATE_KEY}}
-          ssh-public-key: ${{secrets.SSH_PUBLIC_KEY}}
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
@@ -81,6 +77,7 @@ jobs:
           set: |
             *.cache-from=type=gha
             *.cache-to=type=gha,mode=max
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -106,7 +103,6 @@ jobs:
 
       - name: Copy docker-compose.prod.yml to vps_server
         run: sshpass -v -p '${{ secrets.VPS_PASSWORD }}' scp -o StrictHostKeyChecking=no docker-compose.prod.yml root@${{ secrets.VPS_IP }}:~
-
       - name: Deploy
         uses: appleboy/ssh-action@master
         with:
