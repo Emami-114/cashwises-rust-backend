@@ -1,4 +1,4 @@
-version: '3'
+version: '3.8'
 
 services:
   api-rust:
@@ -6,9 +6,9 @@ services:
     container_name: api-rust
     restart: unless-stopped
     ports:
-      - 8000:8000
+      - "8080:8080"
     environment:
-      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_URL: ${DATABASE_CONTAINER_URL}
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
       JWT_MAXAGE: ${JWT_MAXAGE}
     build:
@@ -21,7 +21,7 @@ services:
     image: postgres:15.3-alpine
     container_name: postgres
     ports:
-      - 6500:5432
+      - "6500:5432"
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -40,7 +40,7 @@ services:
     image: dpage/pgadmin4
     container_name: pgadmin
     ports:
-      - 5050:80
+      - "5050:80"
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}

@@ -30,7 +30,7 @@ RUN cargo build --release --target x86_64-unknown-linux-musl
 FROM scratch
 COPY --from=builder /cashwises-rust/target/x86_64-unknown-linux-musl/release/cashwises-rust /cashwises-rust
 ENTRYPOINT ["./cashwises-rust"]
-EXPOSE 8000
+EXPOSE 8080
 
 
 ################
