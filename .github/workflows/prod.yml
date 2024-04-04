@@ -90,6 +90,8 @@ jobs:
           username: root
           password: ${{ secrets.VPS_PASSWORD }}
           dockerfile: Dockerfile
+          repository: Emami-114/cashwises-rust-backend
+          tag_with_ref: true
           script: |
             cd ~
             export DATABASE_URL=${{ secrets.DATABASE_URL }}
