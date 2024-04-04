@@ -89,6 +89,7 @@ jobs:
           host: ${{ secrets.VPS_IP }}
           username: root
           password: ${{ secrets.VPS_PASSWORD }}
+          dockerfile: Dockerfile
           script: |
             cd ~
             export DATABASE_URL=${{ secrets.DATABASE_URL }}
