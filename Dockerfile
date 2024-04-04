@@ -42,7 +42,7 @@
 #EXPOSE 8080
 
 
-FROM messense/rust-musl-cross:x86_64-musl as chef
+FROM messense/rust-musl-cross:x86_64-musl-amd64 as chef
 ENV SQLX_OFFLINE=true
 RUN cargo install cargo-chef
 
