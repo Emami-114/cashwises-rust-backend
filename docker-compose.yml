@@ -1,10 +1,11 @@
-version: '3'
+version: '3.8'
 
 services:
   api-rust:
     image: abduemami/api-rust
     container_name: api-rust
-    restart: unless-stopped
+    restart: always
+
     environment:
       DATABASE_URL: ${DATABASE_URL}
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
