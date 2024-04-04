@@ -32,9 +32,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Build Docker image
-        run: docker build -t api-rust -f /root/Dockerfile .
-
       - name: Cache dependencies
         uses: actions/cache@v3
         with:
@@ -85,7 +82,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
+      - name: Build Docker image
+        run: docker build -t api-rust -f /root/Dockerfile .
       - name: Log in to Docker Hub
         uses: docker/login-action@v1
         with:
