@@ -219,10 +219,4 @@ async fn delete_deal_handler(
 }
 
 
-async fn health_checker_handler() -> impl Responder {
-    const MESSAGE: &str = "BUILD SIMPLE CRUD API with RUST";
-    HttpResponse::Ok().json(json!({
-        "status":"success",
-        "message": MESSAGE
-    }))
-}
+

@@ -1,8 +1,9 @@
 use std::path::Path;
 use crate::handlers::config::{DBClient, DBConfig};
 use actix_cors::Cors;
-use actix_web::{http::header, middleware::Logger, web, App, HttpServer};
+use actix_web::{http::header, middleware::Logger, web, App, HttpServer, Responder, HttpResponse, get};
 use dotenv::dotenv;
+use serde_json::json;
 use sqlx::postgres::PgPoolOptions;
 use tokio::fs;
 use utoipa::Modify;
@@ -96,6 +97,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         App::new()
             .app_data(web::Data::new(app_state.clone()))
             .configure(handlers::config::config)
+            .service(health_checker_handler)
             .wrap(cors)
             .wrap(Logger::default())
     })
@@ -103,4 +105,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .run()
         .await?;
     Ok(())
+}
+#[get("/")]
+async fn health_checker_handler() -> impl Responder {
+    const MESSAGE: &str = "BUILD SIMPLE CRUD API with RUST";
+    HttpResponse::Ok().json(json!({
+        "status":"success",
+        "message": MESSAGE
+    }))
 }
