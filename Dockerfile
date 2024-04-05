@@ -77,5 +77,5 @@ COPY --from=builder /cashwises-rust/target/x86_64-unknown-linux-musl/release/cas
 
 ENTRYPOINT ["./cashwises-rust"]
 
-EXPOSE 8080
+EXPOSE 8000
 
