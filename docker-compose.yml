@@ -47,7 +47,7 @@ services:
       PGADMIN_LISTEN_PORT: ${PGADMIN_LISTEN_PORT}
     volumes:
       - pgadmin-data:/var/lib/pgadmin
-    restart: always
+    restart: unless-stopped
     depends_on:
       - postgres
     networks:
