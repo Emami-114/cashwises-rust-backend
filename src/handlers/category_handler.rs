@@ -10,11 +10,11 @@ use crate::extractors::auth::RequireAuth;
 
 pub fn category_scope() -> Scope {
     web::scope("")
-        .route("/category", web::post().to(create_category_handler))
-        .route("/categories", web::get().to(category_list_handler))
-        .route("/category/{id}", web::get().to(get_category_handler))
-        .route("/category/{id}", web::patch().to(patch_category_handler))
-        .route("/category/{id}", web::delete().to(delete_category_handler))
+        .route("/category", web::post().to(create_category_handler).wrap(RequireAuth))
+        .route("/categories", web::get().to(category_list_handler).wrap(RequireAuth))
+        .route("/category/{id}", web::get().to(get_category_handler).wrap(RequireAuth))
+        .route("/category/{id}", web::patch().to(patch_category_handler).wrap(RequireAuth))
+        .route("/category/{id}", web::delete().to(delete_category_handler).wrap(RequireAuth))
 }
 
 async fn create_category_handler(

@@ -22,7 +22,7 @@ pub fn create_token(
 
     let now = Utc::now();
     let iat = now.timestamp() as usize;
-    let exp = (now + Duration::try_minutes(expires_in_seconds).expect("msg")).timestamp() as usize;
+    let exp = (now + Duration::try_days(expires_in_seconds).expect("msg")).timestamp() as usize;
     let claims: TokenClaims = TokenClaims {
         sub: user_id.to_string(),
         exp,

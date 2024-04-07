@@ -12,11 +12,11 @@ use crate::schema::response_schema::FilterOptions;
 
 pub fn deals_scope() -> Scope {
     web::scope("/deals")
-        .route("", web::post().to(create_deal_handler))
-        .route("", web::get().to(deal_list_handler))
-        .route("/{id}", web::get().to(get_deal_handler))
-        .route("/{id}", web::patch().to(edit_deal_handler))
-        .route("/{id}", web::delete().to(delete_deal_handler))
+        .route("", web::post().to(create_deal_handler).wrap(RequireAuth))
+        .route("", web::get().to(deal_list_handler).wrap(RequireAuth))
+        .route("/{id}", web::get().to(get_deal_handler).wrap(RequireAuth))
+        .route("/{id}", web::patch().to(edit_deal_handler).wrap(RequireAuth))
+        .route("/{id}", web::delete().to(delete_deal_handler).wrap(RequireAuth))
 }
 
 async fn create_deal_handler(

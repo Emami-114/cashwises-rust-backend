@@ -9,7 +9,7 @@ use crate::{
     errors::{auth_errors::ErrorMessage, http_error::HttpError},
     extractors::auth::RequireAuth,
     schema::auth_schema::{
-        FilterUserDto, LoginUserDto, RegisterUserDto, UserData, UserLoginResponseDto,
+        FilterUserDto, LoginUserDto, RegisterUserDto, UserData,
         UserResponseDto,
     },
     utils::{password, token},
@@ -82,7 +82,7 @@ pub async fn login(
             &app_state.env.jwt_secret.as_bytes(),
             app_state.env.jwt_maxage,
         )
-        .map_err(|e| HttpError::server_error(e.to_string()))?;
+            .map_err(|e| HttpError::server_error(e.to_string()))?;
         let cookie = Cookie::build("token", token.to_owned())
             .path("/")
             .max_age(ActixWebDuration::new(60 * &app_state.env.jwt_maxage, 0))
@@ -91,7 +91,9 @@ pub async fn login(
 
         Ok(HttpResponse::Ok()
             .cookie(cookie)
-            .json(token))
+            .json(json!({
+                "token":token
+            })))
     } else {
         Err(HttpError::unauthorized(ErrorMessage::WrongCredentials))
     }
