@@ -46,7 +46,21 @@ jobs:
         with:
           profile: minimal
           toolchain: stable
-
+      - name: Set up environment variables
+        env:
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          SMTP_FROM: ${{ secrets.SMTP_FROM }}
+          SMTP_TO: ${{secrets.SMTP_TO}}
+        run: |
+            echo "export SMTP_HOST=${SMTP_HOST}" >> $GITHUB_ENV
+            echo "export SMTP_PORT=${SMTP_PORT}" >> $GITHUB_ENV
+            echo "export SMTP_USER=${SMTP_USER}" >> $GITHUB_ENV
+            echo "export SMTP_PASS=${SMTP_PASS}" >> $GITHUB_ENV
+            echo "export SMTP_FROM=${SMTP_FROM}" >> $GITHUB_ENV
+            echo "export SMTP_TO=${SMTP_TO}" >> $GITHUB_ENV
       - name: Install SQLx CLI
         run: cargo install sqlx-cli --no-default-features --features native-tls,postgres
 
