@@ -18,11 +18,15 @@ install:
 	cargo add actix-multipart
 	cargo add image
 	cargo add mime
+	cargo add handlebars
+	cargo add lettre -F "tokio1, tokio1-native-tls"
 start-server:
 	cargo watch -q -c -w src/ -x run
 
 db-up:
 	sqlx migrate run
+db-prepare:
+	cargo sqlx prepare
 
 db-down:
 	sqlx migrate revert

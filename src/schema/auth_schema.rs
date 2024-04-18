@@ -9,25 +9,36 @@ pub struct RegisterUserDto {
     #[validate(length(min = 1, message = "Name is required"))]
     pub name: String,
     #[validate(
-        length(min = 1, message = "Email is required"),
-        email(message = "Email is invalid")
+    length(min = 1, message = "Email is required"),
+    email(message = "Email is invalid")
     )]
     pub email: String,
     #[validate(length(min = 1, message = "Password is required"))]
     pub password: String,
     #[validate(
-        length(min = 1, message = "Please confirm your password"),
-        must_match(other = "password", message = "Passwords do not match")
+    length(min = 1, message = "Please confirm your password"),
+    must_match(other = "password", message = "Passwords do not match")
     )]
     #[serde(rename = "password_confirm")]
     pub password_confirm: String,
 }
 
 #[derive(Validate, Debug, Default, Clone, Serialize, Deserialize)]
+pub struct VerificationDto {
+    #[validate(
+    length(min = 1, message = "Email is required"),
+    email(message = "Email is invalid")
+    )]
+    pub email: String,
+    #[validate(length(min = 4, message = "VerificationCode is required"))]
+    pub code: Option<String>,
+}
+
+#[derive(Validate, Debug, Default, Clone, Serialize, Deserialize)]
 pub struct LoginUserDto {
     #[validate(
-        length(min = 1, message = "Email is required"),
-        email(message = "Email is invalid")
+    length(min = 1, message = "Email is required"),
+    email(message = "Email is invalid")
     )]
     pub email: String,
     #[validate(length(min = 1, message = "Password is required"))]
@@ -50,6 +61,7 @@ pub struct FilterUserDto {
     pub role: String,
     pub photo: String,
     pub verified: bool,
+    pub verification_code: String,
     // #[serde(rename = "createdAt")]
     pub created_at: DateTime<Utc>,
     // #[serde(rename = "updatedAt")]
@@ -65,6 +77,7 @@ impl FilterUserDto {
             photo: user.photo.to_owned(),
             role: user.role.to_str().to_string(),
             verified: user.verified,
+            verification_code: user.verification_code.to_owned(),
             created_at: user.created_at.unwrap(),
             updated_at: user.updated_at.unwrap(),
         }

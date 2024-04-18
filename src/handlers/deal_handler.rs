@@ -1,3 +1,5 @@
+use crate::extractors::auth::RequireAuth;
+use crate::schema::response_schema::FilterOptions;
 use crate::{
     models::deal_model::DealModel,
     schema::deal_schema::{CreateDealSchema, UpdateDealSchema},
@@ -6,17 +8,20 @@ use crate::{
 use actix_web::{web, HttpResponse, Responder, Scope};
 use chrono::prelude::*;
 use serde_json::json;
-use crate::extractors::auth::RequireAuth;
-use crate::schema::response_schema::FilterOptions;
-
 
 pub fn deals_scope() -> Scope {
     web::scope("/deals")
         .route("", web::post().to(create_deal_handler).wrap(RequireAuth))
         .route("", web::get().to(deal_list_handler).wrap(RequireAuth))
         .route("/{id}", web::get().to(get_deal_handler).wrap(RequireAuth))
-        .route("/{id}", web::patch().to(edit_deal_handler).wrap(RequireAuth))
-        .route("/{id}", web::delete().to(delete_deal_handler).wrap(RequireAuth))
+        .route(
+            "/{id}",
+            web::patch().to(edit_deal_handler).wrap(RequireAuth),
+        )
+        .route(
+            "/{id}",
+            web::delete().to(delete_deal_handler).wrap(RequireAuth),
+        )
 }
 
 async fn create_deal_handler(
@@ -89,14 +94,18 @@ async fn deal_list_handler(
             query_text,
             limit as i32,
             offset as i32
-        ).fetch_all(&data.db_client.pool).await
+        )
+        .fetch_all(&data.db_client.pool)
+        .await
     } else {
         sqlx::query_as!(
             DealModel,
             "SELECT * FROM deals ORDER BY updated_at LIMIT $1 OFFSET $2",
             limit as i32,
             offset as i32
-        ).fetch_all(&data.db_client.pool).await
+        )
+        .fetch_all(&data.db_client.pool)
+        .await
     };
 
     if query_result.is_err() {
@@ -217,6 +226,3 @@ async fn delete_deal_handler(
     }
     HttpResponse::NoContent().finish()
 }
-
-
-

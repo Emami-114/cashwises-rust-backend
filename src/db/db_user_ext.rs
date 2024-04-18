@@ -1,9 +1,17 @@
-use crate::handlers::config::DBClient;
-use crate::models::user_model::UserRole;
+use actix_web::http::StatusCode;
+use actix_web::Responder;
+use actix_web::web::Json;
 use async_trait::async_trait;
+use sqlx::Error;
 use uuid::Uuid;
+use crate::errors::auth_errors::ErrorResponse;
+use crate::errors::http_error::HttpError;
 
+use crate::handlers::config::{DBClient, EmailConfig};
+use crate::handlers::email_handler::EmailModel;
+use crate::handlers::generate_random_string::generate_random_string;
 use crate::models::user_model::UserModel;
+use crate::models::user_model::UserRole;
 
 #[async_trait]
 pub trait UserExt {
@@ -33,10 +41,53 @@ pub trait UserExt {
         email: T,
         password: T,
     ) -> Result<UserModel, sqlx::Error>;
+
+    async fn set_verification_code(
+        &self,
+        email: Option<&str>,
+        verification_code: Option<String>,
+        set_verification: String,
+    ) -> Result<Option<UserModel>, sqlx::Error>;
 }
 
 #[async_trait]
 impl UserExt for DBClient {
+    async fn set_verification_code(
+        &self,
+        email: Option<&str>,
+        verification_code: Option<String>,
+        set_verification: String,
+    ) -> Result<Option<UserModel>, sqlx::Error> {
+        let user = if let Some(verification_code) = verification_code {
+            let user = self.get_user(None, None, email).await?;
+            if let Some(user) = user {
+                if user.verification_code == verification_code.clone() {
+                    sqlx::query_as!(
+                      UserModel,
+                    r#"
+                    UPDATE users
+                    SET verified = $1
+                    WHERE email = $2
+                    RETURNING id, name, email, password, photo, verified, verification_code, created_at, updated_at, role as "role: UserRole"
+                    "#,
+                    true,
+                    email)
+                        .fetch_optional(&self.pool)
+                        .await?
+                } else { None }
+            } else { None }
+        } else {
+            sqlx::query_as!(
+            UserModel,
+            r#"UPDATE users SET verification_code = $1 WHERE email = $2 RETURNING id,name, email, password, photo,verified,verification_code,created_at,updated_at,role as "role: UserRole""#,
+            &set_verification,
+            email
+        )
+                .fetch_optional(&self.pool)
+                .await?
+        };
+        Ok(user)
+    }
     async fn get_user(
         &self,
         user_id: Option<uuid::Uuid>,
@@ -46,28 +97,27 @@ impl UserExt for DBClient {
         let mut user: Option<UserModel> = None;
 
         if let Some(user_id) = user_id {
-            user = sqlx::query_as!(UserModel, r#"SELECT id,name, email, password, photo,verified,created_at,updated_at,role as "role: UserRole" FROM users WHERE id = $1"#, user_id)
+            user = sqlx::query_as!(UserModel, r#"SELECT id,name, email, password, photo,verified,verification_code,created_at,updated_at,role as "role: UserRole" FROM users WHERE id = $1"#, user_id)
                 .fetch_optional(&self.pool)
                 .await?;
         } else if let Some(name) = name {
-            user = sqlx::query_as!(UserModel, r#"SELECT id,name, email, password, photo,verified,created_at,updated_at,role as "role: UserRole" FROM users WHERE name = $1"#, name)
+            user = sqlx::query_as!(UserModel, r#"SELECT id,name, email, password, photo,verified,verification_code,created_at,updated_at,role as "role: UserRole" FROM users WHERE name = $1"#, name)
                 .fetch_optional(&self.pool)
                 .await?;
         } else if let Some(email) = email {
-            user = sqlx::query_as!(UserModel, r#"SELECT id,name, email, password, photo,verified,created_at,updated_at,role as "role: UserRole" FROM users WHERE email = $1"#, email)
+            user = sqlx::query_as!(UserModel, r#"SELECT id,name, email, password, photo,verified,verification_code,created_at,updated_at,role as "role: UserRole" FROM users WHERE email = $1"#, email)
                 .fetch_optional(&self.pool)
                 .await?;
         }
 
         Ok(user)
     }
-
     async fn get_users(&self, page: u32, limit: usize) -> Result<Vec<UserModel>, sqlx::Error> {
         let offset = (page - 1) * limit as u32;
 
         let users = sqlx::query_as!(
             UserModel,
-            r#"SELECT id,name, email, password, photo,verified,created_at,updated_at,role as "role: UserRole" FROM users
+            r#"SELECT id,name, email, password, photo,verified,verification_code,created_at,updated_at,role as "role: UserRole" FROM users
             LIMIT $1 OFFSET $2"#,
             limit as i64,
             offset as i64
@@ -86,14 +136,13 @@ impl UserExt for DBClient {
     ) -> Result<UserModel, sqlx::Error> {
         let user = sqlx::query_as!(
             UserModel,
-            r#"INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id,name, email, password, photo,verified,created_at,updated_at,role as "role: UserRole""#,
+            r#"INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id,name, email, password, photo,verified,verification_code,created_at,updated_at,role as "role: UserRole""#,
             name.into(),
             email.into(),
             password.into()
         )
             .fetch_one(&self.pool)
             .await?;
-
         Ok(user)
     }
     async fn save_creator<T: Into<String> + Send>(
@@ -104,7 +153,7 @@ impl UserExt for DBClient {
     ) -> Result<UserModel, sqlx::Error> {
         let user = sqlx::query_as!(
             UserModel,
-            r#"INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id,name, email, password, photo,verified,created_at,updated_at,role as "role: UserRole""#,
+            r#"INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id,name, email, password, photo,verified,verification_code,created_at,updated_at,role as "role: UserRole""#,
             name.into(),
             email.into(),
             password.into(),
@@ -122,8 +171,8 @@ impl UserExt for DBClient {
         password: T,
     ) -> Result<UserModel, sqlx::Error> {
         let user = sqlx::query_as!(
-            UserModel,
-            r#"INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id,name, email, password, photo,verified,created_at,updated_at,role as "role: UserRole""#,
+               UserModel,
+            r#"INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id,name, email, password, photo,verified,verification_code,created_at,updated_at,role as "role: UserRole""#,
             name.into(),
             email.into(),
             password.into(),
@@ -131,7 +180,6 @@ impl UserExt for DBClient {
         )
             .fetch_one(&self.pool)
             .await?;
-
         Ok(user)
     }
 }

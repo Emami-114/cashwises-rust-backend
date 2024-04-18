@@ -1,3 +1,4 @@
+use crate::extractors::auth::RequireAuth;
 use crate::schema::category_shema::UpdateCategorySchema;
 use crate::{
     models::category_model::CategoryModel, schema::category_shema::CreateCategorySchema,
@@ -6,15 +7,29 @@ use crate::{
 use actix_web::{web, HttpResponse, Responder, Scope};
 use chrono::Utc;
 use serde_json::json;
-use crate::extractors::auth::RequireAuth;
 
 pub fn category_scope() -> Scope {
     web::scope("")
-        .route("/category", web::post().to(create_category_handler).wrap(RequireAuth))
-        .route("/categories", web::get().to(category_list_handler).wrap(RequireAuth))
-        .route("/category/{id}", web::get().to(get_category_handler).wrap(RequireAuth))
-        .route("/category/{id}", web::patch().to(patch_category_handler).wrap(RequireAuth))
-        .route("/category/{id}", web::delete().to(delete_category_handler).wrap(RequireAuth))
+        .route(
+            "/category",
+            web::post().to(create_category_handler).wrap(RequireAuth),
+        )
+        .route(
+            "/categories",
+            web::get().to(category_list_handler).wrap(RequireAuth),
+        )
+        .route(
+            "/category/{id}",
+            web::get().to(get_category_handler).wrap(RequireAuth),
+        )
+        .route(
+            "/category/{id}",
+            web::patch().to(patch_category_handler).wrap(RequireAuth),
+        )
+        .route(
+            "/category/{id}",
+            web::delete().to(delete_category_handler).wrap(RequireAuth),
+        )
 }
 
 async fn create_category_handler(
@@ -75,8 +90,8 @@ async fn category_list_handler(
         limit as i32,
         offset as i32
     )
-        .fetch_all(&data.db_client.pool)
-        .await;
+    .fetch_all(&data.db_client.pool)
+    .await;
     if query_result.is_err() {
         let message = "Something bad happened while fetching all deal items";
         return HttpResponse::InternalServerError().json(json!({
@@ -105,8 +120,8 @@ async fn get_category_handler(
         "SELECT * FROM categories WHERE id = $1",
         category_id
     )
-        .fetch_one(&data.db_client.pool)
-        .await;
+    .fetch_one(&data.db_client.pool)
+    .await;
 
     match query_result {
         Ok(category) => {
@@ -133,8 +148,8 @@ async fn patch_category_handler(
         "SELECT * FROM categories WHERE id = $1",
         category_id
     )
-        .fetch_one(&data.db_client.pool)
-        .await;
+    .fetch_one(&data.db_client.pool)
+    .await;
 
     if query_result.is_err() {
         let message = format!("Category with ID: {} not found", category_id);
@@ -180,10 +195,10 @@ async fn delete_category_handler(
         "DELETE FROM categories WHERE id = $1",
         category_id
     )
-        .execute(&data.db_client.pool)
-        .await
-        .unwrap()
-        .rows_affected();
+    .execute(&data.db_client.pool)
+    .await
+    .unwrap()
+    .rows_affected();
     if rows_affected == 0 {
         let message = format!("Category with ID: {} note found", category_id);
         return HttpResponse::NotFound().json(json!({"status":"fail","message":message}));

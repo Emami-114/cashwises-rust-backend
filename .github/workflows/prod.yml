@@ -123,6 +123,12 @@ jobs:
             export PGADMIN_DEFAULT_EMAIL=${{secrets.PGADMIN_DEFAULT_EMAIL}}
             export PGADMIN_DEFAULT_PASSWORD=${{secrets.PGADMIN_DEFAULT_PASSWORD}}
             export PGADMIN_LISTEN_PORT=${{secrets.PGADMIN_LISTEN_PORT}}
+            export SMTP_HOST=${{secrets.SMTP_HOST}}
+            export SMTP_PORT=${{secrets.SMTP_PORT}}
+            export SMTP_USER=${{secrets.SMTP_USER}}
+            export SMTP_PASS=${{secrets.SMTP_PASS}}
+            export SMTP_FROM=${{secrets.SMTP_FROM}}
+            export SMTP_TO=${{secrets.SMTP_TO}}
             docker-compose down
             docker-compose pull
             docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d

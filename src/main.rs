@@ -1,14 +1,19 @@
-use std::path::Path;
-use crate::handlers::config::{DBClient, DBConfig};
+use crate::handlers::config::{DBClient, DBConfig, EmailConfig};
+use crate::handlers::generate_random_string::generate_random_string;
+use crate::models::user_model::{UserModel, UserRole};
 use actix_cors::Cors;
-use actix_web::{http::header, middleware::Logger, web, App, HttpServer, Responder, HttpResponse, get};
+use actix_web::{
+    get, http::header, middleware::Logger, web, App, HttpResponse, HttpServer, Responder,
+};
 use dotenv::dotenv;
+use rand::Rng;
 use serde_json::json;
 use sqlx::postgres::PgPoolOptions;
+use std::path::Path;
 use tokio::fs;
-use utoipa::Modify;
-use utoipa::openapi::OpenApi;
 use utoipa::openapi::security::{HttpAuthScheme, HttpBuilder, SecurityScheme};
+use utoipa::openapi::OpenApi;
+use utoipa::Modify;
 
 mod db;
 mod errors;
@@ -22,6 +27,7 @@ mod utils;
 pub struct AppState {
     pub env: DBConfig,
     pub db_client: DBClient,
+    pub email_config: EmailConfig,
 }
 
 struct SecurityAddon;
@@ -35,7 +41,7 @@ impl Modify for SecurityAddon {
                 HttpBuilder::new()
                     .scheme(HttpAuthScheme::Bearer)
                     .bearer_format("JWT")
-                    .build()
+                    .build(),
             ),
         )
     }
@@ -54,6 +60,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     env_logger::init();
 
     let db_config = DBConfig::init();
+    let email_config = EmailConfig::init();
+
     let pool = match PgPoolOptions::new()
         .max_connections(10)
         .connect(&db_config.database_url)
@@ -69,7 +77,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     };
     match sqlx::migrate!("./migrations").run(&pool).await {
-        Ok(_) => println!("Migrations executed successfully."),
+        Ok(_) => println!("Migrations executed successfully.✌️"),
         Err(e) => eprintln!("Error executing migrations: {}", e),
     };
 
@@ -77,11 +85,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let app_state: AppState = AppState {
         env: db_config.clone(),
         db_client,
+        email_config,
     };
-    println!(
-        "🚀 Server running on http://localhost:{}",
-        db_config.port
-    );
+    println!("🚀 Server running on http://localhost:{}", db_config.port);
 
     HttpServer::new(move || {
         let cors = Cors::default()
@@ -101,14 +107,36 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .wrap(cors)
             .wrap(Logger::default())
     })
-        .bind(("0.0.0.0", db_config.port))?
-        .run()
-        .await?;
+    .bind(("0.0.0.0", db_config.port))?
+    .run()
+    .await?;
     Ok(())
 }
 #[get("/")]
 async fn health_checker_handler() -> impl Responder {
     const MESSAGE: &str = "BUILD SIMPLE CRUD API with RUST";
+    // let random_number = generate_random_string(4);
+    // let email_config = EmailConfig::init();
+    // let email = crate::handlers::email_handler::EmailModel::new(
+    //     UserModel {
+    //         id: Default::default(),
+    //         name: "wqdq".to_string(),
+    //         email: "emami.114@outlook.de".to_string(),
+    //         password: "passsword".to_string(),
+    //         role: UserRole::Admin,
+    //         photo: "".to_string(),
+    //         verified: false,
+    //         created_at: None,
+    //         updated_at: None,
+    //     },
+    //     random_number.to_owned().to_string(),
+    //     email_config,
+    // );
+    // if let Err(err) = email.send_verification_code().await {
+    //     println!("Failed to send verification code email: {:?}", err)
+    // } else {
+    //     println!("✅Email verification code sent successfully!")
+    // }
     HttpResponse::Ok().json(json!({
         "status":"success",
         "message": MESSAGE

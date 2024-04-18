@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-
 #[derive(Deserialize, Debug)]
 pub struct ParamOptions {
     pub id: String,

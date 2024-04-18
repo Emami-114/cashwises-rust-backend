@@ -19,7 +19,8 @@ impl UserRole {
     }
 }
 
-#[derive(Debug, Deserialize, sqlx::FromRow, sqlx::Type, Serialize, Clone)]
+#[allow(non_snake_case)]
+#[derive(Debug, Deserialize, sqlx::FromRow,sqlx::Type, Serialize, Clone)]
 pub struct UserModel {
     pub id: uuid::Uuid,
     pub name: String,
@@ -28,6 +29,7 @@ pub struct UserModel {
     pub role: UserRole,
     pub photo: String,
     pub verified: bool,
+    pub verification_code: String,
     pub created_at: Option<DateTime<Utc>>,
     pub updated_at: Option<DateTime<Utc>>,
 }

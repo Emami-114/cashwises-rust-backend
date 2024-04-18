@@ -4,15 +4,16 @@ CREATE TYPE user_role AS ENUM ('admin','creator','customer');
 
 CREATE TABLE IF NOT EXISTS "users"
 (
-    id         UUID         NOT NULL PRIMARY KEY DEFAULT (uuid_generate_v4()),
-    name       VARCHAR(100) NOT NULL,
-    email      VARCHAR(255) NOT NULL UNIQUE,
-    photo      VARCHAR      NOT NULL             DEFAULT 'default.png',
-    verified   BOOLEAN      NOT NULL             DEFAULT FALSE,
-    password   VARCHAR(100) NOT NULL,
-    role       user_role    NOT NULL             DEFAULT 'customer',
-    created_at TIMESTAMP WITH TIME ZONE          DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE          DEFAULT NOW()
+    id                UUID         NOT NULL PRIMARY KEY DEFAULT (uuid_generate_v4()),
+    name              VARCHAR(100) NOT NULL,
+    email             VARCHAR(255) NOT NULL UNIQUE,
+    photo             VARCHAR      NOT NULL             DEFAULT 'default.png',
+    verified          BOOLEAN      NOT NULL             DEFAULT FALSE,
+    password          VARCHAR(100) NOT NULL,
+    role              user_role    NOT NULL             DEFAULT 'customer',
+    verification_code VARCHAR(100) NOT NULL             DEFAULT '',
+    created_at        TIMESTAMP WITH TIME ZONE          DEFAULT NOW(),
+    updated_at        TIMESTAMP WITH TIME ZONE          DEFAULT NOW()
 );
 CREATE INDEX users_email_idx ON users (email);
 
