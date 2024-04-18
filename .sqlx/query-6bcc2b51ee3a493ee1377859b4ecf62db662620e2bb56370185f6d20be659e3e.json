@@ -1,0 +1,133 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE deals SET title = COALESCE($1, title), description = COALESCE($2, description), category = COALESCE($3, category), is_free = COALESCE($4, is_free), price = COALESCE($5, price), offer_price = COALESCE($6, offer_price), published = COALESCE($7, published), expiration_date = COALESCE($8, expiration_date), provider = COALESCE($9, provider), provider_url = COALESCE($10, provider_url), thumbnail = COALESCE($11, thumbnail),images = COALESCE($12, images),user_id = COALESCE($13, user_id),video_url = COALESCE($14, video_url), updated_at = $15 WHERE id = $16 RETURNING *",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "title",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "description",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "category",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 4,
+        "name": "is_free",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 5,
+        "name": "price",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 6,
+        "name": "offer_price",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 7,
+        "name": "expiration_date",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 8,
+        "name": "provider",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 9,
+        "name": "provider_url",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 10,
+        "name": "thumbnail",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 11,
+        "name": "images",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 12,
+        "name": "user_id",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 13,
+        "name": "video_url",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 14,
+        "name": "published",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 15,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 16,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Text",
+        "TextArray",
+        "Bool",
+        "Float8",
+        "Float8",
+        "Bool",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "TextArray",
+        "Varchar",
+        "Varchar",
+        "Timestamptz",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "6bcc2b51ee3a493ee1377859b4ecf62db662620e2bb56370185f6d20be659e3e"
+}

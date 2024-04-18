@@ -115,28 +115,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 #[get("/")]
 async fn health_checker_handler() -> impl Responder {
     const MESSAGE: &str = "BUILD SIMPLE CRUD API with RUST";
-    // let random_number = generate_random_string(4);
-    // let email_config = EmailConfig::init();
-    // let email = crate::handlers::email_handler::EmailModel::new(
-    //     UserModel {
-    //         id: Default::default(),
-    //         name: "wqdq".to_string(),
-    //         email: "emami.114@outlook.de".to_string(),
-    //         password: "passsword".to_string(),
-    //         role: UserRole::Admin,
-    //         photo: "".to_string(),
-    //         verified: false,
-    //         created_at: None,
-    //         updated_at: None,
-    //     },
-    //     random_number.to_owned().to_string(),
-    //     email_config,
-    // );
-    // if let Err(err) = email.send_verification_code().await {
-    //     println!("Failed to send verification code email: {:?}", err)
-    // } else {
-    //     println!("✅Email verification code sent successfully!")
-    // }
     HttpResponse::Ok().json(json!({
         "status":"success",
         "message": MESSAGE
