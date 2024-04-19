@@ -45,7 +45,6 @@
 FROM messense/rust-musl-cross:x86_64-musl-amd64 as chef
 ENV SQLX_OFFLINE=true
 RUN cargo install cargo-chef
-
 WORKDIR /cashwises-rust
 
 FROM chef AS planner
@@ -56,7 +55,6 @@ RUN cargo chef prepare --recipe-path recipe.json
 
 FROM chef AS builder
 COPY --from=planner /cashwises-rust/recipe.json recipe.json
-
 RUN apt-get update \
     && apt-get upgrade -y \
     && apt-get install -y gcc default-libmysqlclient-dev pkg-config \
@@ -67,6 +65,7 @@ RUN apt-get update \
 RUN cargo chef cook --release --target x86_64-unknown-linux-musl --recipe-path recipe.json
 # Copy source code from previous stage
 COPY . .
+COPY ./templates /cashwises-rust/templates
 # Build application
 RUN cargo build --release --target x86_64-unknown-linux-musl
 
@@ -74,6 +73,7 @@ RUN cargo build --release --target x86_64-unknown-linux-musl
 FROM scratch
 
 COPY --from=builder /cashwises-rust/target/x86_64-unknown-linux-musl/release/cashwises-rust /cashwises-rust
+COPY --from=builder /cashwises-rust/templates /cashwises-rust/templates
 
 ENTRYPOINT ["./cashwises-rust"]
 
