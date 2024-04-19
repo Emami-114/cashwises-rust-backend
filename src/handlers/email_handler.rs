@@ -34,7 +34,7 @@ impl EmailModel {
             self.config.smtp_pass.to_owned(),
         );
         let transport =
-            AsyncSmtpTransport::<Tokio1Executor>::starttls_relay(&self.config.smtp_host.to_owned())?
+            AsyncSmtpTransport::<Tokio1Executor>::relay(&self.config.smtp_host.to_owned())?
                 .port(self.config.smtp_port)
                 .credentials(creds)
                 .build();
@@ -44,9 +44,9 @@ impl EmailModel {
     fn render_template(&self, template_name: &str) -> Result<String, handlebars::RenderError> {
         let mut handlebars = Handlebars::new();
         handlebars
-            .register_template_file(template_name, &format!("./templates/{}.hbs", template_name))?;
-        handlebars.register_template_file("styles", "./templates/layouts/styles.hbs")?;
-        handlebars.register_template_file("base", "./templates/layouts/base.hbs")?;
+            .register_template_file(template_name, &format!("templates/{}.hbs", template_name))?;
+        handlebars.register_template_file("styles.hbs", "templates/layouts/styles.hbs")?;
+        handlebars.register_template_file("base.hbs", "templates/layouts/base.hbs")?;
 
         let data = serde_json::json!({
             "first_name": &self.user.name.split_whitespace().next().unwrap(),
@@ -84,11 +84,11 @@ impl EmailModel {
             .await
     }
 
-    pub async fn send_password_reset_token(&self) -> Result<(), Box<dyn std::error::Error>> {
-        self.send_email(
-            "reset_password",
-            "Your password reset token (valid for only 10 minutes)",
-        )
-            .await
-    }
+    // pub async fn send_password_reset_token(&self) -> Result<(), Box<dyn std::error::Error>> {
+    //     self.send_email(
+    //         "reset_password",
+    //         "Your password reset token (valid for only 10 minutes)",
+    //     )
+    //         .await
+    // }
 }
