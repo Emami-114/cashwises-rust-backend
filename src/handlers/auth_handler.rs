@@ -35,7 +35,7 @@ pub async fn patch_verification_code(
     body: web::Json<VerificationDto>,
 ) -> Result<HttpResponse, HttpError> {
     body.validate().map_err(|e| HttpError::bad_request(e.to_string()))?;
-    let result = app_state.db_client.set_verification_code(Some(&body.email.clone()), body.code.clone(),String::new()).await;
+    let result = app_state.db_client.set_verification_code(Some(&body.email.clone()), body.code.clone(), String::new()).await;
     match result {
         Ok(user) => {
             if let Some(user) = user {
@@ -43,7 +43,7 @@ pub async fn patch_verification_code(
             } else {
                 Err(HttpError::bad_request("Failed Verification"))
             }
-        },
+        }
         Err(e) => Err(HttpError::server_error(e.to_string())),
     }
 }
@@ -68,6 +68,7 @@ pub async fn register(
             let verification_code = generate_random_string(4);
             let email_instance = EmailModel::new(user.clone(), verification_code.clone(), app_state.email_config.clone());
             if let Err(err) = email_instance.send_verification_code().await {
+                println!("🧨 Failed email send: {}", err);
                 ErrorResponse {
                     status: "fail".to_string(),
                     message: "Something bad happened while sending the verification code".to_string(),
@@ -75,12 +76,12 @@ pub async fn register(
             } else {
                 println!("✌️ Successfully email send")
             }
-          if let Err(err ) = app_state.db_client.set_verification_code(Some(&user.email.clone()), None, verification_code).await {
-              ErrorResponse {
-                  status: "fail".to_string(),
-                  message: "Something bad happened while sending the verification code".to_string(),
-              };
-          }
+            if let Err(err) = app_state.db_client.set_verification_code(Some(&user.email.clone()), None, verification_code).await {
+                ErrorResponse {
+                    status: "fail".to_string(),
+                    message: "Something bad happened while sending the verification code".to_string(),
+                };
+            }
             Ok(HttpResponse::Created().json(UserResponseDto {
                 status: "success".to_string(),
                 data: UserData {
