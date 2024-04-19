@@ -47,8 +47,6 @@ ENV SQLX_OFFLINE=true
 RUN cargo install cargo-chef
 WORKDIR /cashwises-rust
 
-ARG APP=/usr/src/app
-
 # Stage 1: Planner
 FROM chef AS planner
 # Copy source code from previous stage
@@ -66,14 +64,6 @@ RUN apt-get update \
     && apt-get install -y gcc default-libmysqlclient-dev pkg-config \
     && apt-get install -y ca-certificates tzdata \
     && rm -rf /var/lib/apt/lists/*
-ENV TZ=Etc/UTC \
-    APP_USER=appuser
-# Create non-root user
-RUN groupadd $APP_USER \
-    && useradd -g $APP_USER $APP_USER \
-    && mkdir -p ${APP}
-# Set non-root user as default
-USER $APP_USER
 
 # Build & cache dependencies
 RUN cargo chef cook --release --target x86_64-unknown-linux-musl --recipe-path recipe.json
@@ -85,12 +75,10 @@ RUN cargo build --release --target x86_64-unknown-linux-musl
 
 # Stage 3: Final
 FROM scratch
-RUN chown -R $APP_USER:$APP_USER ${APP}
 
 COPY --from=builder /cashwises-rust/target/x86_64-unknown-linux-musl/release/cashwises-rust ${APP}/cashwises-rust
-COPY --from=builder /cashwises-rust/templates ${APP}/cashwises-rust/templates
-USER $APP_USER
-WORKDIR ${APP}
+#COPY --from=builder /cashwises-rust/templates ${APP}/cashwises-rust/templates
+
 ENTRYPOINT ["./cashwises-rust"]
 
 EXPOSE 8000
