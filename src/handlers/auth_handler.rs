@@ -70,13 +70,15 @@ pub async fn register(
             if let Err(err) = email_instance.send_verification_code().await {
                 ErrorResponse {
                     status: "fail".to_string(),
-                    message: "Something bad happended while sending the verification code".to_string(),
+                    message: "Something bad happened while sending the verification code".to_string(),
                 };
+            } else {
+                println!("✌️ Successfully email send")
             }
           if let Err(err ) = app_state.db_client.set_verification_code(Some(&user.email.clone()), None, verification_code).await {
               ErrorResponse {
                   status: "fail".to_string(),
-                  message: "Something bad happended while sending the verification code".to_string(),
+                  message: "Something bad happened while sending the verification code".to_string(),
               };
           }
             Ok(HttpResponse::Created().json(UserResponseDto {
