@@ -47,7 +47,6 @@ ENV SQLX_OFFLINE=true
 RUN cargo install cargo-chef
 WORKDIR /cashwises-rust
 
-USER root
 RUN groupadd -r appgroup && useradd -r -g appgroup appuser
 RUN mkdir -p /var/lib/buildkit/runc-overlayfs/cachemounts/buildkit4258642046 \
     && chown -R appuser:appgroup /var/lib/buildkit/runc-overlayfs/cachemounts/buildkit4258642046 \
