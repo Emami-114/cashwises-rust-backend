@@ -46,16 +46,7 @@ FROM messense/rust-musl-cross:x86_64-musl-amd64 as chef
 ENV SQLX_OFFLINE=true
 RUN cargo install cargo-chef
 WORKDIR /cashwises-rust
-
-ARG APP=/usr/src/app
-ENV TZ=Etc/UTC \
-    APP_USER=abduemami
-RUN chown -R $APP_USER:$APP_USER ${APP}
-
-RUN groupadd $APP_USER \
-    && useradd -g $APP_USER $APP_USER \
-    && mkdir -p ${APP}
-FROM chef AS planner
+USER=root
 # Copy source code from previous stage
 COPY . .
 # Generate info for caching dependencies
@@ -69,7 +60,14 @@ RUN apt-get update \
     && apt-get install -y ca-certificates tzdata \
     && rm -rf /var/lib/apt/lists/*
 
+ARG APP=/usr/src/app
+ENV APP_USER=abduemami
+RUN chown -R $APP_USER:$APP_USER ${APP}
 
+RUN groupadd $APP_USER \
+    && useradd -g $APP_USER $APP_USER \
+    && mkdir -p ${APP}
+FROM chef AS planner
 
 # Build & cache dependencies
 RUN cargo chef cook --release --target x86_64-unknown-linux-musl --recipe-path recipe.json
