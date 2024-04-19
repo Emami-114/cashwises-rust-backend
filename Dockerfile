@@ -46,7 +46,7 @@ FROM messense/rust-musl-cross:x86_64-musl-amd64 as chef
 ENV SQLX_OFFLINE=true
 RUN cargo install cargo-chef
 WORKDIR /cashwises-rust
-USER=root
+
 # Copy source code from previous stage
 COPY . .
 # Generate info for caching dependencies
@@ -60,15 +60,15 @@ RUN apt-get update \
     && apt-get install -y ca-certificates tzdata \
     && rm -rf /var/lib/apt/lists/*
 
-ARG APP=/usr/src/app
-ENV APP_USER=abduemami
-RUN chown -R $APP_USER:$APP_USER ${APP}
-
+ENV TZ=Etc/UTC \
+    APP_USER=appuser
 RUN groupadd $APP_USER \
     && useradd -g $APP_USER $APP_USER \
     && mkdir -p ${APP}
-FROM chef AS planner
+USER $APP_USER
 
+
+FROM chef AS planner
 # Build & cache dependencies
 RUN cargo chef cook --release --target x86_64-unknown-linux-musl --recipe-path recipe.json
 # Copy source code from previous stage
@@ -79,12 +79,14 @@ RUN cargo build --release --target x86_64-unknown-linux-musl
 
 # Create a new stage with a minimal image
 FROM scratch
+RUN chown -R $APP_USER:$APP_USER ${APP}
 
 
 COPY --from=builder /cashwises-rust/target/x86_64-unknown-linux-musl/release/cashwises-rust ${APP}/cashwises-rust
 COPY --from=builder /cashwises-rust/templates ${APP}/cashwises-rust/templates
 USER $APP_USER
 WORKDIR ${APP}
+
 ENTRYPOINT ["./cashwises-rust"]
 
 EXPOSE 8000
