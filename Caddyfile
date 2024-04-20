@@ -2,10 +2,9 @@ cashwises.backend.api.cwcash.de {
     reverse_proxy api-rust:8000 {
         header_down Strict-Transport-Security max-age=31536000;
     }
-        smtp.strato.de:465
          tls {
-                trust /path/to/smtp_server_cert.pem
-            }
+            dns cloudflare
+         }
 }
 pgadmin4.cwcash.de {
     reverse_proxy pgadmin:80 {
