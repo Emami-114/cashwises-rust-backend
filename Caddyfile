@@ -1,13 +1,12 @@
 cashwises.backend.api.cwcash.de {
+tls internal
     reverse_proxy api-rust:8000 {
         header_down Strict-Transport-Security max-age=31536000;
     }
-    tls {
-            dns cloudflare {env.CF_API_TOKEN}
-            resolvers 1.1.1.1
-        }
+    tls internal
 }
 pgadmin4.cwcash.de {
+tls internal
     reverse_proxy pgadmin:80 {
         header_down Strict-Transport-Security max-age=31536000;
     }
