@@ -135,6 +135,7 @@ jobs:
             export SMTP_PASS=${{secrets.SMTP_PASS}}
             export SMTP_FROM=${{secrets.SMTP_FROM}}
             export SMTP_TO=${{secrets.SMTP_TO}}
+            export CF_API_TOKEN=${{secrets.CF_API_TOKEN}}
             docker-compose down
             docker-compose pull
             docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d

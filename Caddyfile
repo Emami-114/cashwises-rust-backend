@@ -3,7 +3,7 @@ cashwises.backend.api.cwcash.de {
         header_down Strict-Transport-Security max-age=31536000;
     }
          tls {
-            dns cloudflare
+            dns cloudflare {env.CF_API_TOKEN}
          }
 }
 pgadmin4.cwcash.de {
