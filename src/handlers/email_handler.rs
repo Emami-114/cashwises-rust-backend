@@ -34,7 +34,7 @@ impl EmailModel {
             self.config.smtp_pass.to_owned(),
         );
         let transport =
-            AsyncSmtpTransport::<Tokio1Executor>::relay(&self.config.smtp_host.to_owned())?
+            AsyncSmtpTransport::<Tokio1Executor>::starttls_relay(&self.config.smtp_host.to_owned())?
                 .port(self.config.smtp_port)
                 .credentials(creds)
                 .build();
