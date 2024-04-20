@@ -42,6 +42,7 @@
 #EXPOSE 8080
 
 
+
 FROM messense/rust-musl-cross:x86_64-musl-amd64 as chef
 ENV SQLX_OFFLINE=true
 RUN cargo install cargo-chef
@@ -51,6 +52,7 @@ WORKDIR /cashwises-rust
 FROM chef AS planner
 # Copy source code from previous stage
 COPY . .
+COPY ./templates .
 # Generate info for caching dependencies
 RUN cargo chef prepare --recipe-path recipe.json
 
@@ -69,15 +71,15 @@ RUN apt-get update \
 RUN cargo chef cook --release --target x86_64-unknown-linux-musl --recipe-path recipe.json
 # Copy source code from previous stage
 COPY . .
-COPY ./templates /cashwises-rust/templates
+
 # Build application
 RUN cargo build --release --target x86_64-unknown-linux-musl
 
 # Stage 3: Final
 FROM scratch
 
-COPY --from=builder /cashwises-rust/target/x86_64-unknown-linux-musl/release/cashwises-rust ${APP}/cashwises-rust
-#COPY --from=builder /cashwises-rust/templates ${APP}/cashwises-rust/templates
+COPY --from=builder /cashwises-rust/target/x86_64-unknown-linux-musl/release/cashwises-rust /cashwises-rust
+COPY --from=builder /cashwises-rust/templates /templates
 
 ENTRYPOINT ["./cashwises-rust"]
 

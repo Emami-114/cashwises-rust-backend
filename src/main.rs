@@ -56,6 +56,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     if !Path::new("./uploads").exists() {
         fs::create_dir("./uploads").await?;
     }
+
     dotenv().ok();
     env_logger::init();
 
