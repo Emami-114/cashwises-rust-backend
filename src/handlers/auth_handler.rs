@@ -1,8 +1,6 @@
 use actix_web::{
     cookie::time::Duration as ActixWebDuration, cookie::Cookie, web, HttpResponse, Responder, Scope,
 };
-use actix_web::http::StatusCode;
-use actix_web::web::Json;
 use serde_json::json;
 use validator::Validate;
 
@@ -19,7 +17,6 @@ use crate::{
 use crate::errors::auth_errors::ErrorResponse;
 use crate::handlers::email_handler::EmailModel;
 use crate::handlers::generate_random_string::generate_random_string;
-use crate::handlers::users_handler::get_users;
 use crate::schema::auth_schema::VerificationDto;
 
 pub fn auth_scope() -> Scope {
@@ -38,7 +35,7 @@ pub async fn patch_verification_code(
     let result = app_state.db_client.set_verification_code(Some(&body.email.clone()), body.code.clone(), String::new()).await;
     match result {
         Ok(user) => {
-            if let Some(user) = user {
+            if let Some(_) = user {
                 Ok(HttpResponse::Ok().finish())
             } else {
                 Err(HttpError::bad_request("Failed Verification"))
@@ -65,7 +62,7 @@ pub async fn register(
 
     match result {
         Ok(user) => {
-            let verification_code = generate_random_string(4);
+            let verification_code = generate_random_string();
             let email_instance = EmailModel::new(user.clone(), verification_code.clone(), app_state.email_config.clone());
             if let Err(err) = email_instance.send_verification_code().await {
                 println!("🧨 Failed email send: {}", err);
@@ -76,7 +73,7 @@ pub async fn register(
             } else {
                 println!("✌️ Successfully email send")
             }
-            if let Err(err) = app_state.db_client.set_verification_code(Some(&user.email.clone()), None, verification_code).await {
+            if let Err(_) = app_state.db_client.set_verification_code(Some(&user.email.clone()), None, verification_code).await {
                 ErrorResponse {
                     status: "fail".to_string(),
                     message: "Something bad happened while sending the verification code".to_string(),

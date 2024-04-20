@@ -1,15 +1,6 @@
-use actix_web::http::StatusCode;
-use actix_web::Responder;
-use actix_web::web::Json;
 use async_trait::async_trait;
-use sqlx::Error;
 use uuid::Uuid;
-use crate::errors::auth_errors::ErrorResponse;
-use crate::errors::http_error::HttpError;
-
-use crate::handlers::config::{DBClient, EmailConfig};
-use crate::handlers::email_handler::EmailModel;
-use crate::handlers::generate_random_string::generate_random_string;
+use crate::handlers::config::{DBClient};
 use crate::models::user_model::UserModel;
 use crate::models::user_model::UserRole;
 

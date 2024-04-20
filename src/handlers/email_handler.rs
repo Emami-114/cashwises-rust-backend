@@ -34,7 +34,7 @@ impl EmailModel {
             self.config.smtp_pass.to_owned(),
         );
         let transport =
-            AsyncSmtpTransport::<Tokio1Executor>::starttls_relay(&self.config.smtp_host.to_owned())?
+            AsyncSmtpTransport::<Tokio1Executor>::relay(&self.config.smtp_host.to_owned())?
                 .port(self.config.smtp_port)
                 .credentials(creds)
                 .build();
@@ -75,10 +75,17 @@ impl EmailModel {
             .header(ContentType::TEXT_HTML)
             .body(html_template)?;
         let transport = self.new_transport()?;
-        transport.send(email).await?;
-        Ok(())
+        match transport.send(email).await {
+            Ok(_) => {
+                println!("Email sent successfully");
+                Ok(())
+            }
+            Err(e) => {
+                eprintln!("Failed to send email: {:?}", e);
+                Err(Box::new(e))
+            }
+        }
     }
-
     pub async fn send_verification_code(&self) -> Result<(), Box<dyn std::error::Error>> {
         self.send_email("verification_code", "Your account verification code")
             .await

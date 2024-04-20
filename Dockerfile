@@ -60,12 +60,16 @@ RUN cargo chef prepare --recipe-path recipe.json
 FROM chef AS builder
 # Copy recipe from planner stage
 COPY --from=planner /cashwises-rust/recipe.json recipe.json
+
+
 # Install build dependencies
 RUN apt-get update \
     && apt-get upgrade -y \
     && apt-get install -y gcc default-libmysqlclient-dev pkg-config \
     && apt-get install -y ca-certificates \
     && rm -rf /var/lib/apt/lists/*
+
+
 
 # Build & cache dependencies
 RUN cargo chef cook --release --target x86_64-unknown-linux-musl --recipe-path recipe.json
@@ -77,6 +81,7 @@ RUN cargo build --release --target x86_64-unknown-linux-musl
 
 # Stage 3: Final
 FROM scratch
+
 
 COPY --from=builder /cashwises-rust/target/x86_64-unknown-linux-musl/release/cashwises-rust /cashwises-rust
 COPY --from=builder /cashwises-rust/templates /templates

@@ -1,12 +1,9 @@
 use crate::handlers::config::{DBClient, DBConfig, EmailConfig};
-use crate::handlers::generate_random_string::generate_random_string;
-use crate::models::user_model::{UserModel, UserRole};
 use actix_cors::Cors;
 use actix_web::{
     get, http::header, middleware::Logger, web, App, HttpResponse, HttpServer, Responder,
 };
 use dotenv::dotenv;
-use rand::Rng;
 use serde_json::json;
 use sqlx::postgres::PgPoolOptions;
 use std::path::Path;
