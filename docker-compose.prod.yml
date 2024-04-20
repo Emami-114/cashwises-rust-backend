@@ -6,7 +6,7 @@ services:
     container_name: caddy
     restart: unless-stopped
     environment:
-      - CF_API_TOKEN=SQuqzPrpfVK-3dy3oGOSys7dtmFQF1nYVQeUh1Pb
+      - CF_API_TOKEN=ux47kvk7UmbOIumdqA4cqgPeOZPLvSBGteYhQo8J
     ports:
       - "443:443"
       - "80:80"
