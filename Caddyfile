@@ -1,38 +1,15 @@
 cashwises.backend.api.cwcash.de {
-    reverse_proxy {
-        to api-rust:8000
-        transport http {
-            tls {
-                protocols tls1.2
-                insecure_skip_verify
-            }
-        }
+    reverse_proxy api-rust:8000 {
+        header_down Strict-Transport-Security max-age=31536000
     }
-    header_down Strict-Transport-Security max-age=31536000
 }
 
 smtp.strato.de:465 {
-    reverse_proxy {
-        to smtp.strato.de:465
-        transport http {
-            tls {
-                protocols tls1.2
-                insecure_skip_verify
-            }
-        }
-    }
-    tls info@cwcash.de
+    reverse_proxy smtp.strato.de:465
 }
 
 pgadmin4.cwcash.de {
-    reverse_proxy {
-        to pgadmin:80
-        transport http {
-            tls {
-                protocols tls1.2
-                insecure_skip_verify
-            }
-        }
+    reverse_proxy pgadmin:80 {
+        header_down Strict-Transport-Security max-age=31536000
     }
-    header_down Strict-Transport-Security max-age=31536000
 }
