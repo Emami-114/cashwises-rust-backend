@@ -774,6 +774,7 @@ dependencies = [
  "jsonwebtoken",
  "lettre",
  "mime",
+ "native-tls",
  "openssl",
  "openssl-probe",
  "rand",

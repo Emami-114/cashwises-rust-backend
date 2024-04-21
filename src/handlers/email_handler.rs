@@ -5,6 +5,7 @@ use lettre::{
     message::header::ContentType, transport::smtp::authentication::Credentials, AsyncSmtpTransport,
     AsyncTransport, Message, Tokio1Executor,
 };
+use lettre::transport::smtp::client::{Tls, TlsParameters};
 
 pub struct EmailModel {
     user: UserModel,
@@ -33,10 +34,19 @@ impl EmailModel {
             self.config.smtp_user.to_owned(),
             self.config.smtp_pass.to_owned(),
         );
+
+        let tls = TlsParameters::builder(self.config.smtp_host.to_owned())
+            .dangerous_accept_invalid_hostnames(true)
+            .dangerous_accept_invalid_certs(true)
+            .build()
+            .unwrap();
+
+
         let transport =
             AsyncSmtpTransport::<Tokio1Executor>::relay(&self.config.smtp_host.to_owned())?
                 .port(self.config.smtp_port)
                 .credentials(creds)
+                .tls(Tls::Wrapper(tls))
                 .build();
         Ok(transport)
     }
