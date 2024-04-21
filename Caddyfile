@@ -6,10 +6,7 @@ cashwises.backend.api.cwcash.de {
 
 smtp.strato.de:465 {
     reverse_proxy smtp.strato.de:465
-    tls info@cwcash.de {
-            protocols tls1.2
-            insecure_skip_verify
-        }
+    tls info@cwcash.de
 }
 
 pgadmin4.cwcash.de {
