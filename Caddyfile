@@ -3,15 +3,19 @@ cashwises.backend.api.cwcash.de {
         header_down Strict-Transport-Security max-age=31536000;
     }
 }
-smtp.strato.de:465 {
-    reverse_proxy smtp.strato.de:465
-    tls info@cwcash.de {
-        protocols tls1.2
-        insecure_skip_verify
-    }
-}
+
 pgadmin4.cwcash.de {
     reverse_proxy pgadmin:80 {
         header_down Strict-Transport-Security max-age=31536000;
     }
+}
+# Konfiguration für SMTP-Verbindung
+smtp.cwcash.de {
+    encode gzip
+    respond "SMTP server is not accessible." 500
+}
+
+# TLS-Konfiguration mit Skip-Verify
+tls {
+    insecure_skip_verify
 }
