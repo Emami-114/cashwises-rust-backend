@@ -61,7 +61,6 @@ pub struct FilterUserDto {
     pub role: String,
     pub photo: String,
     pub verified: bool,
-    pub verification_code: String,
     // #[serde(rename = "createdAt")]
     pub created_at: DateTime<Utc>,
     // #[serde(rename = "updatedAt")]
@@ -77,7 +76,6 @@ impl FilterUserDto {
             photo: user.photo.to_owned(),
             role: user.role.to_str().to_string(),
             verified: user.verified,
-            verification_code: user.verification_code.to_owned(),
             created_at: user.created_at.unwrap(),
             updated_at: user.updated_at.unwrap(),
         }
