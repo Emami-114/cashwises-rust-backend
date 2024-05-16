@@ -20,7 +20,7 @@
       },
       {
         "ordinal": 3,
-        "name": "category",
+        "name": "categories",
         "type_info": "TextArray"
       },
       {
@@ -80,11 +80,26 @@
       },
       {
         "ordinal": 15,
+        "name": "tags",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 16,
+        "name": "coupon_code",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 17,
+        "name": "shipping_costs",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 18,
         "name": "created_at",
         "type_info": "Timestamptz"
       },
       {
-        "ordinal": 16,
+        "ordinal": 19,
         "name": "updated_at",
         "type_info": "Timestamptz"
       }
@@ -98,6 +113,9 @@
       false,
       false,
       false,
+      true,
+      true,
+      true,
       true,
       true,
       true,
