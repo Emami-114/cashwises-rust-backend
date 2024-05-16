@@ -1,12 +1,13 @@
 use crate::handlers::config::{DBClient, DBConfig, EmailConfig};
 use actix_cors::Cors;
 use actix_web::{
-    get, http::header, middleware::Logger, web, App, HttpResponse, HttpServer, Responder,
+    http::header, middleware::Logger, web, App, HttpResponse, HttpServer, Responder,
 };
 use dotenv::dotenv;
 use serde_json::json;
 use sqlx::postgres::PgPoolOptions;
 use std::path::Path;
+use actix_web::web::scope;
 use tokio::fs;
 use utoipa::openapi::security::{HttpAuthScheme, HttpBuilder, SecurityScheme};
 use utoipa::openapi::OpenApi;
@@ -101,16 +102,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         App::new()
             .app_data(web::Data::new(app_state.clone()))
             .configure(handlers::config::config)
-            .service(health_checker_handler)
+            .service(scope("/").route("", web::get().to(health_checker_handler)))
             .wrap(cors)
             .wrap(Logger::default())
     })
-    .bind(("0.0.0.0", db_config.port))?
-    .run()
-    .await?;
+        .bind(("0.0.0.0", db_config.port))?
+        .run()
+        .await?;
     Ok(())
 }
-#[get("/")]
+
+// #[get("/")]
 async fn health_checker_handler() -> impl Responder {
     const MESSAGE: &str = "BUILD SIMPLE CRUD API with RUST";
     HttpResponse::Ok().json(json!({

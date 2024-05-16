@@ -10,7 +10,7 @@ pub struct CreateDealSchema {
     pub title: String,
     pub description: String,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub category: Option<Vec<String>>,
+    pub categories: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub published: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -33,13 +33,20 @@ pub struct CreateDealSchema {
     pub user_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub video_url: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tags: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub shipping_costs: Option<f64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub coupon_code: Option<String>,
+
 }
 
 #[derive(Deserialize, Debug, Serialize)]
 pub struct UpdateDealSchema {
     pub title: Option<String>,
     pub description: Option<String>,
-    pub category: Option<Vec<String>>,
+    pub categories: Option<Vec<String>>,
     pub published: Option<bool>,
     pub is_free: Option<bool>,
     pub price: Option<f64>,
@@ -51,4 +58,7 @@ pub struct UpdateDealSchema {
     pub images: Option<Vec<String>>,
     pub user_id: Option<String>,
     pub video_url: Option<String>,
+    pub tags: Option<Vec<String>>,
+    pub shipping_costs: Option<f64>,
+    pub coupon_code: Option<String>,
 }

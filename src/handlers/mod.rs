@@ -6,3 +6,5 @@ pub(crate) mod email_handler;
 pub mod generate_random_string;
 mod image_handler;
 pub mod users_handler;
+pub mod tag_handler;
+mod provider_handler;

@@ -14,11 +14,11 @@ use crate::{utils, AppState};
 pub struct RequireAuth;
 
 impl<S> Transform<S, ServiceRequest> for RequireAuth
-where
-    S: Service<
+    where
+        S: Service<
             ServiceRequest,
-            Response = ServiceResponse<actix_web::body::BoxBody>,
-            Error = actix_web::Error,
+            Response=ServiceResponse<actix_web::body::BoxBody>,
+            Error=actix_web::Error,
         > + 'static,
 {
     type Response = ServiceResponse<actix_web::body::BoxBody>;
@@ -38,11 +38,11 @@ where
 pub struct RequireOnlyAdmin;
 
 impl<S> Transform<S, ServiceRequest> for RequireOnlyAdmin
-where
-    S: Service<
+    where
+        S: Service<
             ServiceRequest,
-            Response = ServiceResponse<actix_web::body::BoxBody>,
-            Error = actix_web::Error,
+            Response=ServiceResponse<actix_web::body::BoxBody>,
+            Error=actix_web::Error,
         > + 'static,
 {
     type Response = ServiceResponse<actix_web::body::BoxBody>;
@@ -59,17 +59,41 @@ where
     }
 }
 
+pub struct RequireOnlyCreatorAndAdmin;
+
+impl<S> Transform<S, ServiceRequest> for crate::extractors::auth::RequireOnlyCreatorAndAdmin
+    where
+        S: Service<
+            ServiceRequest,
+            Response=ServiceResponse<actix_web::body::BoxBody>,
+            Error=actix_web::Error,
+        > + 'static,
+{
+    type Response = ServiceResponse<actix_web::body::BoxBody>;
+    type Error = actix_web::Error;
+    type Transform = AuthMiddleware<S>;
+    type InitError = ();
+    type Future = Ready<Result<Self::Transform, Self::InitError>>;
+
+    fn new_transform(&self, service: S) -> Self::Future {
+        ready(Ok(AuthMiddleware {
+            service: Rc::new(service),
+            allowed_roles: vec![UserRole::Admin, UserRole::Creator],
+        }))
+    }
+}
+
 pub struct AuthMiddleware<S> {
     service: Rc<S>,
     allowed_roles: Vec<UserRole>,
 }
 
 impl<S> Service<ServiceRequest> for AuthMiddleware<S>
-where
-    S: Service<
+    where
+        S: Service<
             ServiceRequest,
-            Response = ServiceResponse<actix_web::body::BoxBody>,
-            Error = actix_web::Error,
+            Response=ServiceResponse<actix_web::body::BoxBody>,
+            Error=actix_web::Error,
         > + 'static,
 {
     type Response = ServiceResponse<actix_web::body::BoxBody>;
@@ -141,6 +165,6 @@ where
                 Err(ErrorForbidden(json_error))
             }
         }
-        .boxed_local()
+            .boxed_local()
     }
 }
