@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS deals
     id              UUID PRIMARY KEY NOT NULL DEFAULT (uuid_generate_v4()),
     title           VARCHAR(255)     NOT NULL UNIQUE,
     description     TEXT             NOT NULL,
-    category        TEXT[],
+    categories        TEXT[],
     is_free         BOOLEAN                   DEFAULT NULL,
     price           DOUBLE PRECISION,
     offer_price     DOUBLE PRECISION          DEFAULT NULL,
@@ -34,6 +34,9 @@ CREATE TABLE IF NOT EXISTS deals
     user_id         VARCHAR                   DEFAULT NULL,
     video_url       VARCHAR                   DEFAULT NULL,
     published       BOOLEAN                   DEFAULT FALSE,
+    tags            TEXT[],
+    coupon_code     VARCHAR(100),
+    shipping_costs  DOUBLE PRECISION,
     created_at      TIMESTAMP WITH TIME ZONE  DEFAULT NOW(),
     updated_at      TIMESTAMP WITH TIME ZONE  DEFAULT NOW()
 );
@@ -41,7 +44,7 @@ CREATE TABLE IF NOT EXISTS deals
 CREATE TABLE IF NOT EXISTS categories
 (
     id         UUID PRIMARY KEY NOT NULL DEFAULT (uuid_generate_v4()),
-    title      VARCHAR(255)     NOT NULL,
+    title      VARCHAR(255)     NOT NULL UNIQUE,
     thumbnail  VARCHAR(255)              DEFAULT NULL,
     user_id    VARCHAR(255)              DEFAULT NULL,
     status     VARCHAR(155)              DEFAULT NULL,

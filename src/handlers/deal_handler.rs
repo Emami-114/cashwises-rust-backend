@@ -8,11 +8,13 @@ use crate::{
 use actix_web::{web, HttpResponse, Responder, Scope};
 use chrono::prelude::*;
 use serde_json::json;
+use sqlx::{PgPool};
+use validator::ValidateLength;
 
 pub fn deals_scope() -> Scope {
     web::scope("/deals")
         .route("", web::post().to(create_deal_handler).wrap(RequireAuth))
-        .route("", web::get().to(deal_list_handler).wrap(RequireAuth))
+        .route("", web::get().to(deal_list_handler))
         .route("/{id}", web::get().to(get_deal_handler).wrap(RequireAuth))
         .route(
             "/{id}",
@@ -30,10 +32,10 @@ async fn create_deal_handler(
 ) -> impl Responder {
     let query_result = sqlx::query_as!(
         DealModel,
-        "INSERT INTO deals (title,description,category,is_free,price,offer_price,published,expiration_date,provider,provider_url,thumbnail,images,user_id,video_url) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING *",
+        "INSERT INTO deals (title,description,categories,is_free,price,offer_price,published,expiration_date,provider,provider_url,thumbnail,images,user_id,video_url,tags,shipping_costs,coupon_code) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17) RETURNING *",
         body.title,
         body.description,
-        body.category.as_deref(),
+        body.categories.as_deref(),
         body.is_free,
         body.price,
         body.offer_price,
@@ -45,29 +47,33 @@ async fn create_deal_handler(
         body.images.as_deref(),
         body.user_id,
         body.video_url,
+        body.tags.as_deref(),
+        body.shipping_costs,
+        body.coupon_code,
+
     )
         .fetch_one(&data.db_client.pool)
         .await;
-    match query_result {
+    return match query_result {
         Ok(deal) => {
             let deal_response = json!({"status":"success","data": json!({
                 "deal": deal
             })});
-            return HttpResponse::Ok().json(deal_response);
+            HttpResponse::Ok().json(deal_response)
         }
         Err(e) => {
             if e.to_string()
                 .contains("duplicate key value violates unique constraint")
             {
                 return HttpResponse::BadRequest()
-                    .json(serde_json::json!({"status": "fail","message": "Note with that title already exists"}));
+                    .json(serde_json::json!({"status": "fail","message": "Deal with that title already exists"}));
             }
-            return HttpResponse::InternalServerError().json(json!({
+            HttpResponse::InternalServerError().json(json!({
                 "status":"error",
                 "message": format!("{:?}",e)
-            }));
+            }))
         }
-    }
+    };
 }
 
 async fn deal_list_handler(
@@ -76,7 +82,7 @@ async fn deal_list_handler(
 ) -> impl Responder {
     let limit = opts.limit.unwrap_or(10);
     let offset = (opts.page.unwrap_or(1) - 1) * limit;
-
+    println!("test optional tags {:?}", &opts.tags.length());
     let query_count = sqlx::query_scalar!("SELECT COUNT(*) FROM deals")
         .fetch_one(&data.db_client.pool)
         .await
@@ -85,18 +91,50 @@ async fn deal_list_handler(
     let pages_count = query_count / limit as i64;
 
     let query_result = if let Some(query_text) = &opts.query {
+        println!("test get with text: {}", query_text);
+
         sqlx::query_as!(
             DealModel,
             "SELECT * FROM deals WHERE CASE
-            WHEN $1 <> '' THEN title LIKE '%' || $1 || '%'
+            WHEN $1 <> '' THEN LOWER(title) LIKE '%' || LOWER($1) || '%'
             ELSE true
             END ORDER BY updated_at LIMIT $2 OFFSET $3",
             query_text,
             limit as i32,
             offset as i32
         )
-        .fetch_all(&data.db_client.pool)
-        .await
+            .fetch_all(&data.db_client.pool)
+            .await
+    } else if let Some(query_categories) = &opts.categories{
+        sqlx::query_as!(
+        DealModel,
+        "
+        SELECT * FROM deals
+        WHERE categories && $1::text[]
+        ORDER BY updated_at
+        LIMIT $2 OFFSET $3
+        ",
+        &query_categories,
+        limit as i32,
+        offset as i32
+    )
+            .fetch_all(&data.db_client.pool)
+            .await
+    } else if let Some(query_tags) = &opts.tags {
+        sqlx::query_as!(
+        DealModel,
+        "
+        SELECT * FROM deals
+        WHERE tags && $1::text[]
+        ORDER BY updated_at
+        LIMIT $2 OFFSET $3
+        ",
+        &query_tags,
+        limit as i32,
+        offset as i32
+    )
+            .fetch_all(&data.db_client.pool)
+            .await
     } else {
         sqlx::query_as!(
             DealModel,
@@ -104,8 +142,8 @@ async fn deal_list_handler(
             limit as i32,
             offset as i32
         )
-        .fetch_all(&data.db_client.pool)
-        .await
+            .fetch_all(&data.db_client.pool)
+            .await
     };
 
     if query_result.is_err() {
@@ -114,7 +152,7 @@ async fn deal_list_handler(
             "status":"error",
             "message":message
         }));
-    }
+    };
     let deals = query_result.unwrap();
     let json_response = serde_json::json!({
         "status":"success",
@@ -144,7 +182,7 @@ async fn get_deal_handler(
             return HttpResponse::Ok().json(deal_response);
         }
         Err(_) => {
-            let message = format!("Note with ID: {} not found", deal_id);
+            let message = format!("deal with ID: {} not found", deal_id);
             return HttpResponse::NotFound().json(json!({
                 "status":"fail",
                 "message":message
@@ -173,10 +211,10 @@ async fn edit_deal_handler(
 
     let query_result = sqlx::query_as!(
         DealModel,
-        "UPDATE deals SET title = COALESCE($1, title), description = COALESCE($2, description), category = COALESCE($3, category), is_free = COALESCE($4, is_free), price = COALESCE($5, price), offer_price = COALESCE($6, offer_price), published = COALESCE($7, published), expiration_date = COALESCE($8, expiration_date), provider = COALESCE($9, provider), provider_url = COALESCE($10, provider_url), thumbnail = COALESCE($11, thumbnail),images = COALESCE($12, images),user_id = COALESCE($13, user_id),video_url = COALESCE($14, video_url), updated_at = $15 WHERE id = $16 RETURNING *",
+        "UPDATE deals SET title = COALESCE($1, title), description = COALESCE($2, description), categories = COALESCE($3, categories), is_free = COALESCE($4, is_free), price = COALESCE($5, price), offer_price = COALESCE($6, offer_price), published = COALESCE($7, published), expiration_date = COALESCE($8, expiration_date), provider = COALESCE($9, provider), provider_url = COALESCE($10, provider_url), thumbnail = COALESCE($11, thumbnail),images = COALESCE($12, images),user_id = COALESCE($13, user_id),video_url = COALESCE($14, video_url),tags = COALESCE($15, tags),shipping_costs = COALESCE($16, shipping_costs),coupon_code = COALESCE($17, coupon_code), updated_at = $18 WHERE id = $19 RETURNING *",
          body.title,
         body.description,
-        body.category.as_deref(),
+        body.categories.as_deref(),
         body.is_free,
         body.price,
         body.offer_price,
@@ -188,26 +226,29 @@ async fn edit_deal_handler(
         body.images.as_deref(),
         body.user_id,
         body.video_url,
+        body.tags.as_deref(),
+        body.shipping_costs,
+        body.coupon_code,
         now,
         deal_id,
     ).fetch_one(&data.db_client.pool)
         .await;
 
-    match query_result {
+    return match query_result {
         Ok(deal) => {
             let deal_response = json!({
                 "status":"success",
                 "data": serde_json::json!({"data":deal})
             });
-            return HttpResponse::Ok().json(deal_response);
+            HttpResponse::Ok().json(deal_response)
         }
 
         Err(err) => {
             let message = format!("Error: {:?}", err);
-            return HttpResponse::InternalServerError()
-                .json(serde_json::json!({"status":"error","message":message}));
+            HttpResponse::InternalServerError()
+                .json(serde_json::json!({"status":"error","message":message}))
         }
-    }
+    };
 }
 
 async fn delete_deal_handler(
@@ -221,7 +262,7 @@ async fn delete_deal_handler(
         .unwrap()
         .rows_affected();
     if rows_affected == 0 {
-        let message = format!("Note with ID: {} note found", deal_id);
+        let message = format!("Deal with ID: {} note found", deal_id);
         return HttpResponse::NotFound().json(json!({"status":"fail","message":message}));
     }
     HttpResponse::NoContent().finish()

@@ -60,8 +60,8 @@ async fn create_category_handler(
             if e.to_string()
                 .contains("duplicate key value violates unique constraint")
             {
-                return HttpResponse::BadRequest()
-                    .json(serde_json::json!({"status": "fail","message": "Note with that title already exists"}));
+                return HttpResponse::Conflict()
+                    .json(serde_json::json!({"status": "fail","message": "Category with that title already exists"}));
             }
             HttpResponse::InternalServerError().json(json!({
                 "status":"error",

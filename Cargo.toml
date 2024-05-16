@@ -35,3 +35,4 @@ handlebars = "5.1.2"
 lettre = { version = "0.11.6", features = ["tokio1", "tokio1-native-tls"] }
 rand = "0.8.5"
 native-tls = "0.2.11"
+

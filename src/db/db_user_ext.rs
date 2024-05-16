@@ -43,42 +43,6 @@ pub trait UserExt {
 
 #[async_trait]
 impl UserExt for DBClient {
-    async fn set_verification_code(
-        &self,
-        email: Option<&str>,
-        verification_code: Option<String>,
-        set_verification: String,
-    ) -> Result<Option<UserModel>, sqlx::Error> {
-        let user = if let Some(verification_code) = verification_code {
-            let user = self.get_user(None, None, email).await?;
-            if let Some(user) = user {
-                if user.verification_code == verification_code.clone() {
-                    sqlx::query_as!(
-                      UserModel,
-                    r#"
-                    UPDATE users
-                    SET verified = $1
-                    WHERE email = $2
-                    RETURNING id, name, email, password, photo, verified, verification_code, created_at, updated_at, role as "role: UserRole"
-                    "#,
-                    true,
-                    email)
-                        .fetch_optional(&self.pool)
-                        .await?
-                } else { None }
-            } else { None }
-        } else {
-            sqlx::query_as!(
-            UserModel,
-            r#"UPDATE users SET verification_code = $1 WHERE email = $2 RETURNING id,name, email, password, photo,verified,verification_code,created_at,updated_at,role as "role: UserRole""#,
-            &set_verification,
-            email
-        )
-                .fetch_optional(&self.pool)
-                .await?
-        };
-        Ok(user)
-    }
     async fn get_user(
         &self,
         user_id: Option<uuid::Uuid>,
@@ -118,7 +82,6 @@ impl UserExt for DBClient {
 
         Ok(users)
     }
-
     async fn save_customer<T: Into<String> + Send>(
         &self,
         name: T,
@@ -136,6 +99,7 @@ impl UserExt for DBClient {
             .await?;
         Ok(user)
     }
+
     async fn save_creator<T: Into<String> + Send>(
         &self,
         name: T,
@@ -171,6 +135,42 @@ impl UserExt for DBClient {
         )
             .fetch_one(&self.pool)
             .await?;
+        Ok(user)
+    }
+    async fn set_verification_code(
+        &self,
+        email: Option<&str>,
+        verification_code: Option<String>,
+        set_verification: String,
+    ) -> Result<Option<UserModel>, sqlx::Error> {
+        let user = if let Some(verification_code) = verification_code {
+            let user = self.get_user(None, None, email).await?;
+            if let Some(user) = user {
+                if user.verification_code == verification_code.clone() {
+                    sqlx::query_as!(
+                      UserModel,
+                    r#"
+                    UPDATE users
+                    SET verified = $1
+                    WHERE email = $2
+                    RETURNING id, name, email, password, photo, verified, verification_code, created_at, updated_at, role as "role: UserRole"
+                    "#,
+                    true,
+                    email)
+                        .fetch_optional(&self.pool)
+                        .await?
+                } else { None }
+            } else { None }
+        } else {
+            sqlx::query_as!(
+            UserModel,
+            r#"UPDATE users SET verification_code = $1 WHERE email = $2 RETURNING id,name, email, password, photo,verified,verification_code,created_at,updated_at,role as "role: UserRole""#,
+            &set_verification,
+            email
+        )
+                .fetch_optional(&self.pool)
+                .await?
+        };
         Ok(user)
     }
 }
