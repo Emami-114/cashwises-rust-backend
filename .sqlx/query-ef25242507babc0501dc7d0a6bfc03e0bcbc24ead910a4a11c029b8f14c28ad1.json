@@ -1,0 +1,154 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE deals SET title = COALESCE($1, title), description = COALESCE($2, description), categories = COALESCE($3, categories), is_free = COALESCE($4, is_free), price = COALESCE($5, price), offer_price = COALESCE($6, offer_price), published = COALESCE($7, published), expiration_date = COALESCE($8, expiration_date), provider = COALESCE($9, provider), provider_url = COALESCE($10, provider_url), thumbnail = COALESCE($11, thumbnail),images = COALESCE($12, images),user_id = COALESCE($13, user_id),video_url = COALESCE($14, video_url),tags = COALESCE($15, tags),shipping_costs = COALESCE($16, shipping_costs),coupon_code = COALESCE($17, coupon_code), updated_at = $18 WHERE id = $19 RETURNING *",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "title",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "description",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "categories",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 4,
+        "name": "is_free",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 5,
+        "name": "price",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 6,
+        "name": "offer_price",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 7,
+        "name": "expiration_date",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 8,
+        "name": "provider",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 9,
+        "name": "provider_url",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 10,
+        "name": "thumbnail",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 11,
+        "name": "images",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 12,
+        "name": "user_id",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 13,
+        "name": "video_url",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 14,
+        "name": "published",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 15,
+        "name": "tags",
+        "type_info": "TextArray"
+      },
+      {
+        "ordinal": 16,
+        "name": "coupon_code",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 17,
+        "name": "shipping_costs",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 18,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 19,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Text",
+        "TextArray",
+        "Bool",
+        "Float8",
+        "Float8",
+        "Bool",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "TextArray",
+        "Varchar",
+        "Varchar",
+        "TextArray",
+        "Float8",
+        "Varchar",
+        "Timestamptz",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "ef25242507babc0501dc7d0a6bfc03e0bcbc24ead910a4a11c029b8f14c28ad1"
+}
