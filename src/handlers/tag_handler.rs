@@ -75,10 +75,7 @@ async fn tag_list_handler(
     };
     return match query_result {
         Ok(tags) => {
-            let json_response = serde_json::json!({
-        "results": tags.len(),
-        "tags": tags
-    });
+            let json_response = serde_json::json!(tags);
             HttpResponse::Ok().json(json_response)
         }
         Err(_) => {
