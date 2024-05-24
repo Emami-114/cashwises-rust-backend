@@ -105,7 +105,7 @@ async fn deal_list_handler(
         )
             .fetch_all(&data.db_client.pool)
             .await
-    } else if let Some(query_categories) = &opts.categories{
+    } else if let Some(query_categories) = &opts.categories {
         sqlx::query_as!(
         DealModel,
         "
@@ -175,10 +175,7 @@ async fn get_deal_handler(
 
     match query_result {
         Ok(deal) => {
-            let deal_response = json!({
-                "status":"success",
-                "data": json!({"deal": deal})
-            });
+            let deal_response = json!(deal);
             return HttpResponse::Ok().json(deal_response);
         }
         Err(_) => {
@@ -236,10 +233,7 @@ async fn edit_deal_handler(
 
     return match query_result {
         Ok(deal) => {
-            let deal_response = json!({
-                "status":"success",
-                "data": serde_json::json!({"data":deal})
-            });
+            let deal_response = json!(deal);
             HttpResponse::Ok().json(deal_response)
         }
 

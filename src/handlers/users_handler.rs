@@ -1,4 +1,5 @@
 use actix_web::{web, HttpMessage, HttpRequest, HttpResponse, Scope};
+use serde_json::json;
 use validator::Validate;
 
 use crate::{
@@ -23,14 +24,14 @@ async fn get_me(req: HttpRequest) -> Result<HttpResponse, HttpError> {
         Some(user) => {
             let filtered_user = FilterUserDto::filter_user(user);
 
-            let response_data = UserResponseDto {
-                status: "success".to_string(),
-                data: UserData {
-                    user: filtered_user,
-                },
-            };
+            // let response_data = UserResponseDto {
+            //     status: "success".to_string(),
+            //     data: UserData {
+            //         user: filtered_user,
+            //     },
+            // };
 
-            Ok(HttpResponse::Ok().json(response_data))
+            Ok(HttpResponse::Ok().json(json!(filtered_user)))
         }
         None => Err(HttpError::server_error("User not found")),
     }
