@@ -123,16 +123,16 @@ async fn get_category_handler(
     .fetch_one(&data.db_client.pool)
     .await;
 
-    match query_result {
+    return match query_result {
         Ok(category) => {
-            return HttpResponse::Ok().json(category);
+            HttpResponse::Ok().json(category)
         }
         Err(_) => {
             let message = format!("category with ID: {} not found", category_id);
-            return HttpResponse::NotFound().json(json!({
+            HttpResponse::NotFound().json(json!({
                 "status":"fail",
                 "message":message
-            }));
+            }))
         }
     }
 }
