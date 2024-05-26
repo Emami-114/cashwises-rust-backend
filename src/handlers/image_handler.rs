@@ -20,7 +20,7 @@ async fn get_image(image_path: web::Path<String>) -> impl Responder {
     let file_path = format!("{}{}", "./uploads/", image_path.into_inner());
     match std::fs::read(file_path) {
         Ok(image_content) => Ok(HttpResponse::Ok()
-            .content_type("image/png")
+            .content_type("image/jpeg")
             .body(image_content)),
         Err(e) => {
             println!("get_image");

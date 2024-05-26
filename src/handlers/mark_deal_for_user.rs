@@ -27,13 +27,14 @@ pub async fn mark_deal_for_user(
 
 
 pub async fn delete_mark_deal_user(
-    path: actix_web::web::Path<Uuid>,
+    path: actix_web::web::Json<UserMarkedDeals>,
     data: actix_web::web::Data<AppState>,
 ) -> impl Responder {
-    let deal_id = path.into_inner();
+    let UserMarkedDeals { user_id, deal_id } = path.into_inner();
     let rows_affected = sqlx::query_as!(
         UserMarkedDeals,
-        "DELETE FROM user_marked_deals WHERE deal_id = $1",
+        "DELETE FROM user_marked_deals WHERE user_id = $1 AND deal_id = $2",
+        user_id,
         deal_id
     ).execute(&data.db_client.pool).await.unwrap().rows_affected();
     if rows_affected == 0 {
