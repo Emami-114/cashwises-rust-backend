@@ -8,13 +8,13 @@ use crate::{
 use actix_web::{web, HttpResponse, Responder, Scope};
 use chrono::prelude::*;
 use serde_json::json;
-use sqlx::{PgPool};
 use validator::ValidateLength;
+use crate::handlers::mark_deal_for_user::{delete_mark_deal_user, mark_deal_for_user};
 
 pub fn deals_scope() -> Scope {
     web::scope("/deals")
         .route("", web::post().to(create_deal_handler).wrap(RequireAuth))
-        .route("", web::get().to(deal_list_handler))
+        .route("", web::get().to(deal_list_handler).wrap(RequireAuth))
         .route("/{id}", web::get().to(get_deal_handler).wrap(RequireAuth))
         .route(
             "/{id}",
@@ -24,6 +24,8 @@ pub fn deals_scope() -> Scope {
             "/{id}",
             web::delete().to(delete_deal_handler).wrap(RequireAuth),
         )
+        .route("/marked", web::post().to(mark_deal_for_user).wrap(RequireAuth))
+        .route("/marked/{id}", web::delete().to(delete_mark_deal_user).wrap(RequireAuth))
 }
 
 async fn create_deal_handler(

@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "DELETE FROM user_marked_deals WHERE deal_id = $1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "507754b7766604888208a8d63a7a1fe49fb8de3fb5ac90b88e580bf5e80761e0"
+}
