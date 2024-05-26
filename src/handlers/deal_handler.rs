@@ -25,7 +25,7 @@ pub fn deals_scope() -> Scope {
             web::delete().to(delete_deal_handler).wrap(RequireAuth),
         )
         .route("/marked", web::post().to(mark_deal_for_user).wrap(RequireAuth))
-        .route("/marked/{id}", web::delete().to(delete_mark_deal_user).wrap(RequireAuth))
+        .route("/marked", web::delete().to(delete_mark_deal_user).wrap(RequireAuth))
 }
 
 async fn create_deal_handler(
