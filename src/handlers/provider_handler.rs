@@ -1,5 +1,4 @@
 use actix_web::{HttpResponse, Responder, Scope, web};
-use actix_web::web::route;
 use serde_json::json;
 use crate::AppState;
 use crate::extractors::auth::{RequireAuth, RequireOnlyAdmin, RequireOnlyCreatorAndAdmin};

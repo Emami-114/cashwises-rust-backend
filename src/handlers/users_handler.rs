@@ -8,7 +8,7 @@ use crate::{
     extractors::auth::{RequireAuth, RequireOnlyAdmin},
     models::user_model::UserModel,
     schema::auth_schema::{
-        FilterUserDto, RequestQueryDto, UserData, UserListResponseDto, UserResponseDto,
+        FilterUserDto, RequestQueryDto, UserListResponseDto,
     },
     AppState,
 };

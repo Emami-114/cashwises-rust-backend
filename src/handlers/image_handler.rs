@@ -4,8 +4,6 @@ use actix_web::dev::ResourcePath;
 use actix_web::http::header::CONTENT_LENGTH;
 use actix_web::{web, Error, HttpRequest, HttpResponse, Responder};
 use futures_util::TryStreamExt;
-use image::imageops::FilterType;
-use image::DynamicImage;
 use mime::{Mime, IMAGE_GIF, IMAGE_JPEG, IMAGE_PNG};
 use std::path::Path;
 use tokio::fs;
@@ -84,19 +82,19 @@ pub async fn upload_images_handler(
                 let _ = saved_file.write_all(&chunk).await.unwrap();
             }
 
-            web::block(move || async move {
-                let uploaded_img: DynamicImage = image::open(&destination).unwrap();
-                let _ = fs::remove_file(&destination).await.unwrap();
-                // let save_path = format!("{}{}.png", dir, Uuid::new_v4().to_string());
-                // let save_path = format!("{}{}",dir,field.content_disposition().get_filename().unwrap_or(Uuid::new_v4().to_string().as_str()));
-                uploaded_img
-                    .resize_exact(640, 380, FilterType::Triangle)
-                    .save(&destination)
-                    .unwrap();
-            })
-            .await
-            .unwrap()
-            .await;
+            // web::block(move || async move {
+            //     let uploaded_img: DynamicImage = image::open(&destination).unwrap();
+            //     let _ = fs::remove_file(&destination).await.unwrap();
+            //     // let save_path = format!("{}{}.png", dir, Uuid::new_v4().to_string());
+            //     // let save_path = format!("{}{}",dir,field.content_disposition().get_filename().unwrap_or(Uuid::new_v4().to_string().as_str()));
+            //     uploaded_img
+            //         .resize_exact(640, 380, FilterType::Triangle)
+            //         .save(&destination)
+            //         .unwrap();
+            // })
+            // .await
+            // .unwrap()
+            // .await;
         } else {
             break;
         }
@@ -143,17 +141,17 @@ pub async fn upload_image_handler(
             let _ = saved_file.write_all(&chunk).await.unwrap();
         }
 
-        web::block(move || async move {
-            let uploaded_img: DynamicImage = image::open(&destination).unwrap();
-            let _ = fs::remove_file(&destination).await.unwrap();
-            uploaded_img
-                .resize_exact(640, 380, FilterType::Triangle)
-                .save(&destination)
-                .unwrap();
-        })
-        .await
-        .unwrap()
-        .await;
+        // web::block(move || async move {
+        //     let uploaded_img: DynamicImage = image::open(&destination).unwrap();
+        //     let _ = fs::remove_file(&destination).await.unwrap();
+        //     uploaded_img
+        //         .resize_exact(640, 380, FilterType::Triangle)
+        //         .save(&destination)
+        //         .unwrap();
+        // })
+        // .await
+        // .unwrap()
+        // .await;
     }
     Ok(HttpResponse::Ok().json(images_path))
 }

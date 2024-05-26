@@ -1,7 +1,5 @@
-use std::fmt;
 use std::fmt::Write;
-use serde::{de, Deserialize, Deserializer, Serialize};
-use serde::de::Visitor;
+use serde::{Deserialize, Deserializer, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct Response {

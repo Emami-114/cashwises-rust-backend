@@ -8,3 +8,4 @@ mod image_handler;
 pub mod users_handler;
 pub mod tag_handler;
 mod provider_handler;
+mod mark_deal_for_user;
