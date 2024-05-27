@@ -86,7 +86,7 @@ async fn category_list_handler(
     let pages_count = query_count / limit as i64;
     let query_result = sqlx::query_as!(
         CategoryModel,
-        "SELECT * FROM categories ORDER by id LIMIT $1 OFFSET $2",
+        "SELECT * FROM categories ORDER by updated_at DESC LIMIT $1 OFFSET $2",
         limit as i32,
         offset as i32
     )

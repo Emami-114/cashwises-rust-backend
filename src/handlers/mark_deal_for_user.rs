@@ -4,7 +4,7 @@ use uuid::Uuid;
 use crate::AppState;
 use crate::models::user_marked_deals::UserMarkedDeals;
 
-pub async fn mark_deal_for_user(
+pub async fn post_mark_deal_for_user(
     body: actix_web::web::Json<UserMarkedDeals>,
     data: actix_web::web::Data<AppState>,
 ) -> impl Responder {
@@ -25,6 +25,27 @@ pub async fn mark_deal_for_user(
     };
 }
 
+pub async fn get_list_mark_deal_for_user(
+    path: actix_web::web::Path<Uuid>,
+    data: actix_web::web::Data<AppState>,
+) -> impl Responder {
+    let user_id = path.into_inner();
+    let query_results = sqlx::query_as!(
+        UserMarkedDeals,
+        "SELECT * FROM user_marked_deals WHERE user_id = $1",
+        user_id
+    )
+        .fetch_all(&data.db_client.pool).await;
+    match query_results {
+        Ok(deals) => {
+            HttpResponse::Ok().json(deals)
+        }
+        Err(e) => {
+            HttpResponse::BadRequest().json(())
+        }
+    }
+
+}
 
 pub async fn delete_mark_deal_user(
     path: actix_web::web::Json<UserMarkedDeals>,

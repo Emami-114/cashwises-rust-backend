@@ -9,7 +9,7 @@ use actix_web::{web, HttpResponse, Responder, Scope};
 use chrono::prelude::*;
 use serde_json::json;
 use validator::ValidateLength;
-use crate::handlers::mark_deal_for_user::{delete_mark_deal_user, mark_deal_for_user};
+use crate::handlers::mark_deal_for_user::{delete_mark_deal_user, get_list_mark_deal_for_user, post_mark_deal_for_user};
 
 pub fn deals_scope() -> Scope {
     web::scope("/deals")
@@ -24,8 +24,9 @@ pub fn deals_scope() -> Scope {
             "/{id}",
             web::delete().to(delete_deal_handler).wrap(RequireAuth),
         )
-        .route("/marked", web::post().to(mark_deal_for_user).wrap(RequireAuth))
+        .route("/marked", web::post().to(post_mark_deal_for_user).wrap(RequireAuth))
         .route("/marked", web::delete().to(delete_mark_deal_user).wrap(RequireAuth))
+        .route("/marked/{id}", web::get().to(get_list_mark_deal_for_user).wrap(RequireAuth))
 }
 
 async fn create_deal_handler(
@@ -100,7 +101,7 @@ async fn deal_list_handler(
             "SELECT * FROM deals WHERE CASE
             WHEN $1 <> '' THEN LOWER(title) LIKE '%' || LOWER($1) || '%'
             ELSE true
-            END ORDER BY updated_at LIMIT $2 OFFSET $3",
+            END ORDER BY updated_at DESC LIMIT $2 OFFSET $3",
             query_text,
             limit as i32,
             offset as i32
@@ -113,7 +114,7 @@ async fn deal_list_handler(
         "
         SELECT * FROM deals
         WHERE categories && $1::text[]
-        ORDER BY updated_at
+        ORDER BY updated_at DESC
         LIMIT $2 OFFSET $3
         ",
         &query_categories,
@@ -128,7 +129,7 @@ async fn deal_list_handler(
         "
         SELECT * FROM deals
         WHERE tags && $1::text[]
-        ORDER BY updated_at
+        ORDER BY updated_at DESC
         LIMIT $2 OFFSET $3
         ",
         &query_tags,
@@ -140,7 +141,7 @@ async fn deal_list_handler(
     } else {
         sqlx::query_as!(
             DealModel,
-            "SELECT * FROM deals ORDER BY updated_at LIMIT $1 OFFSET $2",
+            "SELECT * FROM deals ORDER BY updated_at DESC LIMIT $1 OFFSET $2",
             limit as i32,
             offset as i32
         )
