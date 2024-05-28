@@ -1,8 +1,8 @@
-use actix_web::{HttpResponse, Responder};
+use actix_web::{HttpResponse, Responder, web};
 use serde_json::json;
 use uuid::Uuid;
 use crate::AppState;
-use crate::models::user_marked_deals::UserMarkedDeals;
+use crate::models::user_marked_deals::{UserMarkedDeals, UserMarkedDealsSchema};
 
 pub async fn post_mark_deal_for_user(
     body: actix_web::web::Json<UserMarkedDeals>,
@@ -48,10 +48,11 @@ pub async fn get_list_mark_deal_for_user(
 }
 
 pub async fn delete_mark_deal_user(
-    path: actix_web::web::Json<UserMarkedDeals>,
+    path: web::Path<(Uuid, Uuid)>,
     data: actix_web::web::Data<AppState>,
 ) -> impl Responder {
-    let UserMarkedDeals { user_id, deal_id } = path.into_inner();
+    let (user_id, deal_id) = path.into_inner();
+
     let rows_affected = sqlx::query_as!(
         UserMarkedDeals,
         "DELETE FROM user_marked_deals WHERE user_id = $1 AND deal_id = $2",
@@ -59,7 +60,7 @@ pub async fn delete_mark_deal_user(
         deal_id
     ).execute(&data.db_client.pool).await.unwrap().rows_affected();
     if rows_affected == 0 {
-        let message = format!("Deal marked with ID: {} not found", deal_id);
+        let message = "Deal marked with ID: not found".to_string();
         return HttpResponse::NotFound().json(json!(message));
     }
     HttpResponse::NoContent().finish()
