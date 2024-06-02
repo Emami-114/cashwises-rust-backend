@@ -1,15 +1,15 @@
 use actix_web::{web, HttpResponse, Responder, Scope};
 use serde_json::json;
 use crate::{AppState};
-use crate::extractors::auth::{RequireAuth, RequireOnlyAdmin, RequireOnlyCreatorAndAdmin};
+use crate::extractors::auth_middleware::{RequireAuth, RequireOnlyAdmin, RequireOnlyCreatorAndAdmin};
 use crate::models::tag_model::{TagModel, CreateTagSchema};
 use crate::schema::response_schema::FilterOptions;
 
 pub fn tags_scope() -> Scope {
     web::scope("/tags")
         .route("", web::post().to(create_tag_handler).wrap(RequireOnlyCreatorAndAdmin))
-        .route("", web::get().to(tag_list_handler).wrap(RequireAuth))
-        .route("/{id}", web::get().to(get_tag_handler).wrap(RequireAuth))
+        .route("", web::get().to(tag_list_handler))
+        .route("/{id}", web::get().to(get_tag_handler))
         .route("/{id}", web::delete().to(delete_tag_handler).wrap(RequireOnlyAdmin))
 }
 

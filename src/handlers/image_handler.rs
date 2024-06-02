@@ -8,12 +8,14 @@ use mime::{Mime, IMAGE_GIF, IMAGE_JPEG, IMAGE_PNG};
 use std::path::Path;
 use tokio::fs;
 use tokio::io::AsyncWriteExt;
+use crate::extractors::auth_middleware::{RequireOnlyAdmin, RequireOnlyCreatorAndAdmin};
 
 pub fn image_scope() -> actix_web::Scope {
     web::scope("/images")
         .route("/{image_path:.*}", web::get().to(get_image))
-        .route("", web::post().to(upload_images_handler))
-        .route("/image", web::post().to(upload_image_handler))
+        .route("", web::post().to(upload_images_handler).wrap(RequireOnlyCreatorAndAdmin))
+        .route("/image", web::post().to(upload_image_handler).wrap(RequireOnlyCreatorAndAdmin))
+        .route("/{image_path:.*}", web::delete().to(delete_image).wrap(RequireOnlyAdmin))
 }
 
 async fn get_image(image_path: web::Path<String>) -> impl Responder {
@@ -26,6 +28,21 @@ async fn get_image(image_path: web::Path<String>) -> impl Responder {
             println!("get_image");
             Err(actix_web::Error::from(e))
         }
+    }
+}
+
+async fn delete_image(image_path: web::Path<String>) -> impl Responder {
+    let file_path = format!("{}{}", "./uploads/", image_path.into_inner());
+
+    //     let uploaded_img: DynamicImage = image::open(&destination).unwrap();
+    //     let _ = fs::remove_file(&destination).await.unwrap();
+    if Path::new(&file_path).exists() {
+        match fs::remove_file(&file_path).await {
+            Ok(_) => HttpResponse::Ok().json("File deleted successfully."),
+            Err(err) => HttpResponse::InternalServerError().json(format!("Error deleting file: {}", err))
+        }
+    } else {
+        HttpResponse::NotFound().json("File not found.")
     }
 }
 
