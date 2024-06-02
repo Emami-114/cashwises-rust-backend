@@ -61,7 +61,7 @@ impl<S> Transform<S, ServiceRequest> for RequireOnlyAdmin
 
 pub struct RequireOnlyCreatorAndAdmin;
 
-impl<S> Transform<S, ServiceRequest> for crate::extractors::auth_middleware::RequireOnlyCreatorAndAdmin
+impl<S> Transform<S, ServiceRequest> for RequireOnlyCreatorAndAdmin
     where
         S: Service<
             ServiceRequest,
@@ -78,7 +78,7 @@ impl<S> Transform<S, ServiceRequest> for crate::extractors::auth_middleware::Req
     fn new_transform(&self, service: S) -> Self::Future {
         ready(Ok(AuthMiddleware {
             service: Rc::new(service),
-            allowed_roles: vec![UserRole::Admin, UserRole::Creator],
+            allowed_roles: vec![UserRole::Creator, UserRole::Admin],
         }))
     }
 }
