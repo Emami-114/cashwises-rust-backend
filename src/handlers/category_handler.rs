@@ -1,4 +1,4 @@
-use crate::extractors::auth::RequireAuth;
+use crate::extractors::auth_middleware::{RequireAuth, RequireOnlyAdmin};
 use crate::schema::category_shema::UpdateCategorySchema;
 use crate::{
     models::category_model::CategoryModel, schema::category_shema::CreateCategorySchema,
@@ -12,23 +12,23 @@ pub fn category_scope() -> Scope {
     web::scope("")
         .route(
             "/category",
-            web::post().to(create_category_handler).wrap(RequireAuth),
+            web::post().to(create_category_handler).wrap(RequireOnlyAdmin),
         )
         .route(
             "/categories",
-            web::get().to(category_list_handler).wrap(RequireAuth),
+            web::get().to(category_list_handler),
         )
         .route(
             "/category/{id}",
-            web::get().to(get_category_handler).wrap(RequireAuth),
+            web::get().to(get_category_handler),
         )
         .route(
             "/category/{id}",
-            web::patch().to(patch_category_handler).wrap(RequireAuth),
+            web::patch().to(patch_category_handler).wrap(RequireOnlyAdmin),
         )
         .route(
             "/category/{id}",
-            web::delete().to(delete_category_handler).wrap(RequireAuth),
+            web::delete().to(delete_category_handler).wrap(RequireOnlyAdmin),
         )
 }
 

@@ -1,14 +1,14 @@
 use actix_web::{HttpResponse, Responder, Scope, web};
 use serde_json::json;
 use crate::AppState;
-use crate::extractors::auth::{RequireAuth, RequireOnlyAdmin, RequireOnlyCreatorAndAdmin};
+use crate::extractors::auth_middleware::{RequireAuth, RequireOnlyAdmin, RequireOnlyCreatorAndAdmin};
 use crate::models::provider_model::ProviderModel;
 use crate::schema::provider_schema::{CreateProvider, ProviderFilterOptions};
 
 pub fn provider_scope() -> Scope {
     web::scope("/providers")
         .route("", web::post().to(create_provider_handler).wrap(RequireOnlyCreatorAndAdmin))
-        .route("", web::get().to(provider_list_handler).wrap(RequireAuth))
+        .route("", web::get().to(provider_list_handler).wrap(RequireOnlyCreatorAndAdmin))
         .route("/{id}", web::delete().to(delete_provider_handler).wrap(RequireOnlyAdmin))
 }
 

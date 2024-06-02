@@ -5,7 +5,7 @@ use validator::Validate;
 use crate::{
     db::db_user_ext::UserExt,
     errors::http_error::HttpError,
-    extractors::auth::{RequireAuth, RequireOnlyAdmin},
+    extractors::auth_middleware::{RequireAuth, RequireOnlyAdmin},
     models::user_model::UserModel,
     schema::auth_schema::{
         FilterUserDto, RequestQueryDto, UserListResponseDto,

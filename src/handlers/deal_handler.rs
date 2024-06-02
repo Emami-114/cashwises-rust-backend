@@ -1,4 +1,4 @@
-use crate::extractors::auth::RequireAuth;
+use crate::extractors::auth_middleware::{RequireAuth, RequireOnlyAdmin, RequireOnlyCreatorAndAdmin};
 use crate::schema::response_schema::FilterOptions;
 use crate::{
     models::deal_model::DealModel,
@@ -13,16 +13,16 @@ use crate::handlers::mark_deal_for_user::{delete_mark_deal_user, get_list_mark_d
 
 pub fn deals_scope() -> Scope {
     web::scope("/deals")
-        .route("", web::post().to(create_deal_handler).wrap(RequireAuth))
-        .route("", web::get().to(deal_list_handler).wrap(RequireAuth))
-        .route("/{id}", web::get().to(get_deal_handler).wrap(RequireAuth))
+        .route("", web::post().to(create_deal_handler).wrap(RequireOnlyCreatorAndAdmin))
+        .route("", web::get().to(deal_list_handler))
+        .route("/{id}", web::get().to(get_deal_handler))
         .route(
             "/{id}",
-            web::patch().to(edit_deal_handler).wrap(RequireAuth),
+            web::patch().to(edit_deal_handler).wrap(RequireOnlyCreatorAndAdmin),
         )
         .route(
             "/{id}",
-            web::delete().to(delete_deal_handler).wrap(RequireAuth),
+            web::delete().to(delete_deal_handler).wrap(RequireOnlyAdmin),
         )
         .route("/marked", web::post().to(post_mark_deal_for_user).wrap(RequireAuth))
         .route("/marked/{user_id}/{deal_id}", web::delete().to(delete_mark_deal_user).wrap(RequireAuth))

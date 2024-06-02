@@ -7,7 +7,7 @@ use validator::Validate;
 use crate::{
     db::db_user_ext::UserExt,
     errors::{auth_errors::ErrorMessage, http_error::HttpError},
-    extractors::auth::RequireAuth,
+    extractors::auth_middleware::RequireAuth,
     schema::auth_schema::{
         FilterUserDto, LoginUserDto, RegisterUserDto, UserData, UserResponseDto,
     },
