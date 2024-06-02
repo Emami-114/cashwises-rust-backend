@@ -33,9 +33,6 @@ async fn get_image(image_path: web::Path<String>) -> impl Responder {
 
 async fn delete_image(image_path: web::Path<String>) -> impl Responder {
     let file_path = format!("{}{}", "./uploads/", image_path.into_inner());
-
-    //     let uploaded_img: DynamicImage = image::open(&destination).unwrap();
-    //     let _ = fs::remove_file(&destination).await.unwrap();
     if Path::new(&file_path).exists() {
         match fs::remove_file(&file_path).await {
             Ok(_) => HttpResponse::Ok().json("File deleted successfully."),
