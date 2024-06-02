@@ -1,4 +1,3 @@
-use std::env;
 use std::rc::Rc;
 
 use actix_web::{dev::{ServiceRequest, ServiceResponse}, http, HttpMessage, HttpResponse, web};
@@ -38,7 +37,7 @@ impl<S> Service<ServiceRequest> for ApiKeyMiddlewareService<S>
     forward_ready!(service);
 
     fn call(&self, req: ServiceRequest) -> Self::Future {
-        let api_key = env::var("API_KEY").expect("API_KEY must be set in .env file");
+        let api_key = std::env::var("API_KEY").expect("API_KEY must be set in .env file");
 
         if let Some(header_value) = req.headers().get("X-API-Key") {
             if header_value == api_key.as_str() {
