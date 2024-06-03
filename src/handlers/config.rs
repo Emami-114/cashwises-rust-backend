@@ -2,6 +2,7 @@ use crate::handlers::deal_handler::deals_scope;
 use crate::handlers::image_handler::image_scope;
 use actix_web::web;
 use sqlx::{Pool, Postgres};
+use crate::extractors::api_key_middleware::ApiKeyMiddleware;
 
 use crate::handlers::category_handler::category_scope;
 use crate::handlers::{auth_handler::auth_scope, users_handler::users_scope};
@@ -11,12 +12,12 @@ use crate::handlers::tag_handler::tags_scope;
 pub fn config(conf: &mut web::ServiceConfig) {
     let scope = web::scope("/api")
         .service(image_scope())
-        .service(provider_scope())
-        .service(tags_scope())
-        .service(deals_scope())
-        .service(auth_scope())
-        .service(users_scope())
-        .service(category_scope());
+        .service(provider_scope().wrap(ApiKeyMiddleware))
+        .service(tags_scope().wrap(ApiKeyMiddleware))
+        .service(deals_scope().wrap(ApiKeyMiddleware))
+        .service(auth_scope().wrap(ApiKeyMiddleware))
+        .service(users_scope().wrap(ApiKeyMiddleware))
+        .service(category_scope().wrap(ApiKeyMiddleware));
     conf.service(scope);
 }
 
