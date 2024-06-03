@@ -104,7 +104,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .supports_credentials();
         App::new()
             .app_data(web::Data::new(app_state.clone()))
-            .wrap(ApiKeyMiddleware)
             .configure(handlers::config::config)
             .service(scope("/").route("", web::get().to(health_checker_handler)))
             .wrap(cors)
