@@ -12,12 +12,12 @@ use crate::handlers::tag_handler::tags_scope;
 pub fn config(conf: &mut web::ServiceConfig) {
     let scope = web::scope("/api")
         .service(image_scope())
-        .service(provider_scope().wrap(ApiKeyMiddleware))
-        .service(tags_scope().wrap(ApiKeyMiddleware))
-        .service(deals_scope().wrap(ApiKeyMiddleware))
-        .service(auth_scope().wrap(ApiKeyMiddleware))
-        .service(users_scope().wrap(ApiKeyMiddleware))
-        .service(category_scope().wrap(ApiKeyMiddleware));
+        .service(provider_scope())
+        .service(tags_scope())
+        .service(deals_scope())
+        .service(auth_scope())
+        .service(users_scope())
+        .service(category_scope());
     conf.service(scope);
 }
 
