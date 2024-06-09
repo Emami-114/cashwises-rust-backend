@@ -1,4 +1,3 @@
-use std::fmt::Write;
 use serde::{Deserialize, Deserializer, Serialize};
 
 #[derive(Serialize, Deserialize)]

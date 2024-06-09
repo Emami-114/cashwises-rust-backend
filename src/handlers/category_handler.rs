@@ -1,4 +1,4 @@
-use crate::extractors::auth_middleware::{RequireAuth, RequireOnlyAdmin};
+use crate::extractors::auth_middleware::{RequireOnlyAdmin};
 use crate::schema::category_shema::UpdateCategorySchema;
 use crate::{
     models::category_model::CategoryModel, schema::category_shema::CreateCategorySchema,

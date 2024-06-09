@@ -1,14 +1,13 @@
 use crate::extractors::auth_middleware::{RequireAuth, RequireOnlyAdmin, RequireOnlyCreatorAndAdmin};
 use crate::schema::response_schema::FilterOptions;
 use crate::{
-    models::deal_model::DealModel,
+    models::deal_model::{DealModel, SmallDealModel},
     schema::deal_schema::{CreateDealSchema, UpdateDealSchema},
     AppState,
 };
 use actix_web::{web, HttpResponse, Responder, Scope};
 use chrono::prelude::*;
 use serde_json::json;
-use validator::ValidateLength;
 use crate::handlers::mark_deal_for_user::{delete_mark_deal_user, get_list_mark_deal_for_user, post_mark_deal_for_user};
 
 pub fn deals_scope() -> Scope {
@@ -85,7 +84,6 @@ async fn deal_list_handler(
 ) -> impl Responder {
     let limit = opts.limit.unwrap_or(10);
     let offset = (opts.page.unwrap_or(1) - 1) * limit;
-    println!("test optional tags {:?}", &opts.tags.length());
     let query_count = sqlx::query_scalar!("SELECT COUNT(*) FROM deals")
         .fetch_one(&data.db_client.pool)
         .await
@@ -94,11 +92,9 @@ async fn deal_list_handler(
     let pages_count = query_count / limit as i64;
 
     let query_result = if let Some(query_text) = &opts.query {
-        println!("test get with text: {}", query_text);
-
         sqlx::query_as!(
-            DealModel,
-            "SELECT * FROM deals WHERE CASE
+            SmallDealModel,
+            "SELECT id, title, is_free,price,expiration_date,offer_price,provider,provider_url,thumbnail,user_id,shipping_costs,updated_at FROM deals WHERE CASE
             WHEN $1 <> '' THEN LOWER(title) LIKE '%' || LOWER($1) || '%'
             ELSE true
             END ORDER BY updated_at DESC LIMIT $2 OFFSET $3",
@@ -110,9 +106,9 @@ async fn deal_list_handler(
             .await
     } else if let Some(query_categories) = &opts.categories {
         sqlx::query_as!(
-        DealModel,
+        SmallDealModel,
         "
-        SELECT * FROM deals
+        SELECT id, title, is_free,price,offer_price,expiration_date,provider,provider_url,thumbnail,user_id,shipping_costs,updated_at FROM deals
         WHERE categories && $1::text[]
         ORDER BY updated_at DESC
         LIMIT $2 OFFSET $3
@@ -125,9 +121,9 @@ async fn deal_list_handler(
             .await
     } else if let Some(query_tags) = &opts.tags {
         sqlx::query_as!(
-        DealModel,
+        SmallDealModel,
         "
-        SELECT * FROM deals
+        SELECT id, title, is_free,price,offer_price,expiration_date,provider,provider_url,thumbnail,user_id,shipping_costs,updated_at FROM deals
         WHERE tags && $1::text[]
         ORDER BY updated_at DESC
         LIMIT $2 OFFSET $3
@@ -140,8 +136,8 @@ async fn deal_list_handler(
             .await
     } else {
         sqlx::query_as!(
-            DealModel,
-            "SELECT * FROM deals ORDER BY updated_at DESC LIMIT $1 OFFSET $2",
+            SmallDealModel,
+            "SELECT id, title, is_free,price,offer_price,expiration_date,provider,provider_url,thumbnail,user_id,shipping_costs,updated_at FROM deals ORDER BY updated_at DESC LIMIT $1 OFFSET $2",
             limit as i32,
             offset as i32
         )
