@@ -39,7 +39,6 @@ pub struct CreateDealSchema {
     pub shipping_costs: Option<f64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub coupon_code: Option<String>,
-
 }
 
 #[derive(Deserialize, Debug, Serialize)]

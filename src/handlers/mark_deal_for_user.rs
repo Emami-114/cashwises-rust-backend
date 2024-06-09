@@ -2,7 +2,7 @@ use actix_web::{HttpResponse, Responder, web};
 use serde_json::json;
 use uuid::Uuid;
 use crate::AppState;
-use crate::models::user_marked_deals::{UserMarkedDeals, UserMarkedDealsSchema};
+use crate::models::user_marked_deals::{UserMarkedDeals};
 
 pub async fn post_mark_deal_for_user(
     body: actix_web::web::Json<UserMarkedDeals>,
@@ -19,7 +19,7 @@ pub async fn post_mark_deal_for_user(
         Ok(_) => {
             HttpResponse::Ok()
         }
-        Err(e) => {
+        Err(_) => {
             HttpResponse::InternalServerError()
         }
     };
@@ -40,7 +40,7 @@ pub async fn get_list_mark_deal_for_user(
         Ok(deals) => {
             HttpResponse::Ok().json(deals)
         }
-        Err(e) => {
+        Err(_) => {
             HttpResponse::BadRequest().json(())
         }
     }

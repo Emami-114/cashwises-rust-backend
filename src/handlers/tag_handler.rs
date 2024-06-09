@@ -1,7 +1,7 @@
 use actix_web::{web, HttpResponse, Responder, Scope};
 use serde_json::json;
 use crate::{AppState};
-use crate::extractors::auth_middleware::{RequireAuth, RequireOnlyAdmin, RequireOnlyCreatorAndAdmin};
+use crate::extractors::auth_middleware::{RequireOnlyAdmin, RequireOnlyCreatorAndAdmin};
 use crate::models::tag_model::{TagModel, CreateTagSchema};
 use crate::schema::response_schema::FilterOptions;
 

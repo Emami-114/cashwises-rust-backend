@@ -7,14 +7,11 @@ use dotenv::dotenv;
 use serde_json::json;
 use sqlx::postgres::PgPoolOptions;
 use std::path::Path;
-use std::rc::Rc;
 use actix_web::web::scope;
 use tokio::fs;
 use utoipa::openapi::security::{HttpAuthScheme, HttpBuilder, SecurityScheme};
 use utoipa::openapi::OpenApi;
 use utoipa::Modify;
-use crate::extractors::api_key_middleware::{ApiKeyMiddleware};
-use crate::extractors::auth_middleware::AuthMiddleware;
 
 mod db;
 mod errors;

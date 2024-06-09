@@ -1,7 +1,7 @@
 use actix_web::{HttpResponse, Responder, Scope, web};
 use serde_json::json;
 use crate::AppState;
-use crate::extractors::auth_middleware::{RequireAuth, RequireOnlyAdmin, RequireOnlyCreatorAndAdmin};
+use crate::extractors::auth_middleware::{RequireOnlyAdmin, RequireOnlyCreatorAndAdmin};
 use crate::models::provider_model::ProviderModel;
 use crate::schema::provider_schema::{CreateProvider, ProviderFilterOptions};
 
